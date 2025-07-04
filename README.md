@@ -1,7 +1,7 @@
-# HimSankalp 🌐  
+# Janhit 🌐  
 **Empowering Citizens, Transforming Himachal**
 
-HimSankalp is a civic engagement platform designed to bridge the gap between citizens and local government authorities. It enables people to report local issues (like potholes, water shortages, and power cuts), vote on the urgency of problems, and track their resolution in real-time — all with the goal of making governance transparent, responsive, and citizen-driven.
+Janhit is a civic engagement platform designed to bridge the gap between citizens and local government authorities. It enables people to report local issues (like potholes, water shortages, and power cuts), vote on the urgency of problems, and track their resolution in real-time — all with the goal of making governance transparent, responsive, and citizen-driven.
 
 ---
 
@@ -26,7 +26,7 @@ Citizens in India often face everyday issues such as:
 - Water and electricity shortages  
 - Garbage mismanagement  
 
-These problems are frequently **underreported or unresolved** due to **slow and inefficient systems**. HimSankalp solves this by offering:
+These problems are frequently **underreported or unresolved** due to **slow and inefficient systems**. Janhit solves this by offering:
 - A digital platform for issue reporting  
 - Community voting to prioritize problems  
 - Real-time tracking for accountability  
@@ -106,4 +106,4 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ---
 
-> ✨ *“HimSankalp is not just a platform — it’s a movement toward smart, participative governance.”* 🇮🇳
+> ✨ *“Janhit is not just a platform — it’s a movement toward smart, participative governance.”* 🇮🇳
