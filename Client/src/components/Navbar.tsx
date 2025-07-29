@@ -6,7 +6,6 @@ import toast from 'react-hot-toast';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [brandDropdownOpen, setBrandDropdownOpen] = useState(false);
   const [creatorDropdownOpen, setCreatorDropdownOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
@@ -30,7 +29,6 @@ const Navbar: React.FC = () => {
 
   const closeMenu = () => {
     setIsOpen(false);
-    setBrandDropdownOpen(false);
     setCreatorDropdownOpen(false);
   };
 
@@ -50,18 +48,12 @@ const Navbar: React.FC = () => {
           <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors">Home</Link>
 
           <div className="relative">
-            <button
+            <Link
+              to="/mycomplaints"
               className="flex items-center text-gray-700 hover:text-gray-900 transition-colors"
-              onClick={() => setBrandDropdownOpen(!brandDropdownOpen)}
             >
-              My Tasks <ChevronDown className={`ml-1 h-4 w-4 transition-transform duration-200 ${brandDropdownOpen ? 'rotate-180' : ''}`} />
-            </button>
-            {brandDropdownOpen && (
-              <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 animate-fadeIn transition-all">
-                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Option 1</a>
-                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Option 2</a>
-              </div>
-            )}
+              My Complaints
+            </Link>
           </div>
 
           <div className="relative">
@@ -136,20 +128,11 @@ const Navbar: React.FC = () => {
       {isOpen && (
         <div className="md:hidden mt-4 pt-4 border-t border-gray-200 animate-slideDown origin-top transition-all duration-300 ease-in-out">
           <div className="space-y-6 px-4 pb-6">
-            {/* My Tasks (mobile) */}
+            {/* My Complaints (mobile) */}
             <div>
-              <button
-                onClick={() => setBrandDropdownOpen(!brandDropdownOpen)}
-                className="flex items-center justify-between w-full text-gray-700 hover:text-gray-900"
-              >
-                My Tasks <ChevronDown className={`ml-1 h-4 w-4 transition-transform duration-200 ${brandDropdownOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {brandDropdownOpen && (
-                <div className="pl-4 mt-2 space-y-2 animate-fadeIn">
-                  <a onClick={closeMenu} href="#" className="block py-1 text-gray-700 hover:text-gray-900">Option 1</a>
-                  <a onClick={closeMenu} href="#" className="block py-1 text-gray-700 hover:text-gray-900">Option 2</a>
-                </div>
-              )}
+              <Link onClick={closeMenu} to="/mycomplaints" className="block text-gray-700 hover:text-gray-900">
+                My Complaints
+              </Link>
             </div>
 
             {/* Government Officials (mobile) */}

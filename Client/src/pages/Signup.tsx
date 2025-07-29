@@ -14,13 +14,61 @@ const Signup: React.FC = () => {
     longitude: '',
     latitude: '',
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const getCurrentLocation = () => {
+    if (navigator.geolocation) {
+      toast.loading('Getting your location...');
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setFormData({
+            ...formData,
+            longitude: position.coords.longitude.toString(),
+            latitude: position.coords.latitude.toString(),
+          });
+          toast.dismiss();
+          toast.success('Location obtained successfully!');
+        },
+        (error) => {
+          toast.dismiss();
+          toast.error('Could not get your location. Please enter manually.');
+          console.error('Geolocation error:', error);
+        }
+      );
+    } else {
+      toast.error('Geolocation is not supported by your browser.');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+
+    // Validate coordinates
+    const longitude = parseFloat(formData.longitude);
+    const latitude = parseFloat(formData.latitude);
+    
+    if (isNaN(longitude) || isNaN(latitude)) {
+      toast.error('Please enter valid longitude and latitude coordinates');
+      setIsLoading(false);
+      return;
+    }
+
+    if (longitude < -180 || longitude > 180) {
+      toast.error('Longitude must be between -180 and 180');
+      setIsLoading(false);
+      return;
+    }
+
+    if (latitude < -90 || latitude > 90) {
+      toast.error('Latitude must be between -90 and 90');
+      setIsLoading(false);
+      return;
+    }
 
     const payload = {
       name: formData.name,
@@ -29,18 +77,35 @@ const Signup: React.FC = () => {
       phone: formData.phone,
       location: {
         type: 'Point',
-        coordinates: [parseFloat(formData.longitude), parseFloat(formData.latitude)],
+        coordinates: [longitude, latitude],
       },
     };
     
     try {
       const response = await axios.post(`${API}/signupUser`, payload);
-      if(response){
-        toast.success("Signup Successfull");
+      
+      if (response.status === 201) {
+        toast.success('Signup successful! Please login to continue.');
+        navigate('/login');
+      } else {
+        toast.error('Signup failed. Please try again.');
       }
-      navigate('/login');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Signup error:', error);
+      
+      if (error.response) {
+        // Server responded with error status
+        const errorMessage = error.response.data?.message || 'Signup failed. Please try again.';
+        toast.error(errorMessage);
+      } else if (error.request) {
+        // Network error
+        toast.error('Network error. Please check your connection and try again.');
+      } else {
+        // Other error
+        toast.error('An unexpected error occurred. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -50,15 +115,96 @@ const Signup: React.FC = () => {
         <h2 className="text-3xl font-bold text-center mb-6 font-serif">Sign Up</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input name="name" type="text" placeholder="Your Name" value={formData.name} onChange={handleChange} className="w-full border rounded-md px-3 py-2" required />
-          <input name="email" type="email" placeholder="you@example.com" value={formData.email} onChange={handleChange} className="w-full border rounded-md px-3 py-2" required />
-          <input name="password" type="password" placeholder="••••••••" value={formData.password} onChange={handleChange} className="w-full border rounded-md px-3 py-2" required />
-          <input name="phone" type="text" placeholder="Aadhar number" value={formData.phone} onChange={handleChange} className="w-full border rounded-md px-3 py-2" required />
-          <input name="longitude" type="number" step="any" placeholder="Longitude" value={formData.longitude} onChange={handleChange} className="w-full border rounded-md px-3 py-2" required />
-          <input name="latitude" type="number" step="any" placeholder="Latitude" value={formData.latitude} onChange={handleChange} className="w-full border rounded-md px-3 py-2" required />
+          <input 
+            name="name" 
+            type="text" 
+            placeholder="Your Name" 
+            value={formData.name} 
+            onChange={handleChange} 
+            className="w-full border rounded-md px-3 py-2" 
+            required 
+            disabled={isLoading}
+          />
+          <input 
+            name="email" 
+            type="email" 
+            placeholder="you@example.com" 
+            value={formData.email} 
+            onChange={handleChange} 
+            className="w-full border rounded-md px-3 py-2" 
+            required 
+            disabled={isLoading}
+          />
+          <input 
+            name="password" 
+            type="password" 
+            placeholder="••••••••" 
+            value={formData.password} 
+            onChange={handleChange} 
+            className="w-full border rounded-md px-3 py-2" 
+            required 
+            disabled={isLoading}
+            minLength={6}
+          />
+          <input 
+            name="phone" 
+            type="text" 
+            placeholder="Aadhar number" 
+            value={formData.phone} 
+            onChange={handleChange} 
+            className="w-full border rounded-md px-3 py-2" 
+            required 
+            disabled={isLoading}
+          />
+          
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-gray-700">Location</label>
+              <button
+                type="button"
+                onClick={getCurrentLocation}
+                className="text-sm text-blue-600 hover:text-blue-800 underline"
+                disabled={isLoading}
+              >
+                Get My Location
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <input 
+                name="longitude" 
+                type="number" 
+                step="any" 
+                placeholder="Longitude" 
+                value={formData.longitude} 
+                onChange={handleChange} 
+                className="w-full border rounded-md px-3 py-2" 
+                required 
+                disabled={isLoading}
+              />
+              <input 
+                name="latitude" 
+                type="number" 
+                step="any" 
+                placeholder="Latitude" 
+                value={formData.latitude} 
+                onChange={handleChange} 
+                className="w-full border rounded-md px-3 py-2" 
+                required 
+                disabled={isLoading}
+              />
+            </div>
+          </div>
 
-          <button type="submit" className="w-full bg-gray-900 text-white py-2 rounded-md hover:bg-gray-800 transition">
-            Sign Up
+          <button 
+            type="submit" 
+            className={`w-full py-2 rounded-md transition ${
+              isLoading 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-gray-900 text-white hover:bg-gray-800'
+            }`}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Signing up...' : 'Sign Up'}
           </button>
         </form>
 

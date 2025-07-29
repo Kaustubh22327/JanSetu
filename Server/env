@@ -1,0 +1,11 @@
+# Server Configuration
+PORT=8000
+
+# MongoDB Configuration
+MONGODB_URI=mongodb://localhost:27017/janhit
+
+# JWT Configuration
+ACCESS_TOKEN_SECRET=your_jwt_secret_key_here_change_in_production
+
+# CORS Configuration
+CORS=http://localhost:5173 

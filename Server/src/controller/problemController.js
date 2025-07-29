@@ -229,3 +229,33 @@ export const getOfficialProblems = async (req, res) => {
         res.status(500).json({ success: false, message: "Server Error" });
     }
 };
+
+export const getUserComplaints = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ success: false, message: "Invalid user ID" });
+        }
+
+        const complaints = await ProblemReport.find({ createdBy: userId })
+            .sort({ createdAt: -1 }) // Most recent first
+            .lean();
+
+        const formattedComplaints = complaints.map((complaint) => ({
+            ...complaint,
+            createdBy: complaint.createdBy.toString(),
+            _id: complaint._id.toString(),
+            createdAt: complaint.createdAt,
+        }));
+
+        res.status(200).json({
+            success: true,
+            count: formattedComplaints.length,
+            complaints: formattedComplaints,
+        });
+    } catch (error) {
+        console.error("Error fetching user complaints:", error);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
