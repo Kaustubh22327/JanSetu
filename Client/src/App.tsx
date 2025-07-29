@@ -10,6 +10,7 @@ import DashboardUser from './pages/DashboardUser';
 import DashboardOfficer from './pages/DashboardOfficer';
 import Officials from './pages/Officials';
 import MyTeam from './pages/MyTeam';
+import MyComplaints from './pages/MyComplaints';
 import ProtectedRoute from './ProtectedRoute';
 
 
@@ -93,6 +94,14 @@ function App() {
             element={
               <MainLayout>
                 <MapPage />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/mycomplaints"
+            element={
+              <MainLayout>
+                <MyComplaints />
               </MainLayout>
             }
           />
