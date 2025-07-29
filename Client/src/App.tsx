@@ -11,6 +11,8 @@ import DashboardOfficer from './pages/DashboardOfficer';
 import Officials from './pages/Officials';
 import MyTeam from './pages/MyTeam';
 import MyComplaints from './pages/MyComplaints';
+import AdminLogin from './pages/AdminLogin';
+import AdminDashboard from './pages/AdminDashboard';
 import ProtectedRoute from './ProtectedRoute';
 
 
@@ -97,15 +99,19 @@ function App() {
               </MainLayout>
             }
           />
-          <Route
-            path="/mycomplaints"
-            element={
-              <MainLayout>
-                <MyComplaints />
-              </MainLayout>
-            }
-          />
-        </Route>
+                  <Route
+          path="/mycomplaints"
+          element={
+            <MainLayout>
+              <MyComplaints />
+            </MainLayout>
+          }
+        />
+      </Route>
+
+      {/* Admin Routes */}
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
 
       </Routes>

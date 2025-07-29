@@ -55,6 +55,9 @@ const problemReportSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  adminNotes: {
+    type: String
+  },
   createdAt: {
     type: Date,
     default: Date.now

@@ -90,6 +90,7 @@ const Navbar: React.FC = () => {
         <div className="hidden md:flex items-center space-x-4">
           <Link to="/aboutus" className="text-gray-700 hover:text-gray-900 transition-colors">About</Link>
           <Link to="/contactUs" className="text-gray-700 hover:text-gray-900 transition-colors">Contact Us</Link>
+          <Link to="/admin/login" className="text-gray-700 hover:text-gray-900 transition-colors">Admin</Link>
           {
             isLoggedIn 
             ? 
@@ -170,6 +171,7 @@ const Navbar: React.FC = () => {
             <Link onClick={closeMenu} to="/" className="block text-gray-700 hover:text-gray-900">Home</Link>
             <Link onClick={closeMenu} to="/aboutus" className="block text-gray-700 hover:text-gray-900">About</Link>
             <Link onClick={closeMenu} to="/contactUs" className="block text-gray-700 hover:text-gray-900">Contact Us</Link>
+            <Link onClick={closeMenu} to="/admin/login" className="block text-gray-700 hover:text-gray-900">Admin</Link>
             {isLoggedIn ? (
               <>
                 <Link onClick={closeMenu} to="/dashboardUser" className="block text-gray-700 hover:text-gray-900">Profile</Link>
