@@ -1,109 +1,179 @@
-# Janhit 🌐  
-**Empowering Citizens, Transforming Himachal**
+# Janhit - Citizen Problem Reporting System
 
-Janhit is a civic engagement platform designed to bridge the gap between citizens and local government authorities. It enables people to report local issues (like potholes, water shortages, and power cuts), vote on the urgency of problems, and track their resolution in real-time — all with the goal of making governance transparent, responsive, and citizen-driven.
+## Setup Instructions
 
----
+### Prerequisites
+- Node.js (v14 or higher)
+- MongoDB (running locally or cloud instance)
+- Git
 
-## 📌 Table of Contents
+### Installation
 
-- [🎯 Introduction](#-introduction)
-- [💡 Motivation](#-motivation)
-- [🎯 Project Objectives](#-project-objectives)
-- [🚀 Key Innovations](#-key-innovations)
-- [📚 Existing Solutions](#-existing-solutions)
-- [⚙️ Tech Stack](#️-tech-stack)
-- [📽️ Demo & Progress](#️-demo--progress)
-- [👥 Team](#-team)
-- [📄 License](#-license)
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd Janhit
+   ```
 
----
+2. **Install dependencies**
+   ```bash
+   # Install server dependencies
+   cd Server
+   npm install
+   
+   # Install client dependencies
+   cd ../Client
+   npm install
+   ```
 
-## 🎯 Introduction
+3. **Configure environment variables**
+   - In the `Server` directory, ensure the `env` file exists with the following variables:
+     ```
+     PORT=8000
+     MONGODB_URI=mongodb://localhost:27017/janhit
+     ACCESS_TOKEN_SECRET=your_jwt_secret_key_here_change_in_production
+     CORS=http://localhost:5173
+     ```
 
-Citizens in India often face everyday issues such as:
-- Potholes on roads  
-- Water and electricity shortages  
-- Garbage mismanagement  
+4. **Start MongoDB**
+   - Make sure MongoDB is running on your system
+   - If using a different MongoDB URI, update the `MONGODB_URI` in the `env` file
 
-These problems are frequently **underreported or unresolved** due to **slow and inefficient systems**. Janhit solves this by offering:
-- A digital platform for issue reporting  
-- Community voting to prioritize problems  
-- Real-time tracking for accountability  
+5. **Run the application**
+   ```bash
+   # Start the server (from Server directory)
+   cd Server
+   npm start
+   
+   # Start the client (from Client directory, in a new terminal)
+   cd Client
+   npm run dev
+   ```
 
-It empowers citizens and supports smarter governance in Himachal Pradesh.
+## Testing Signup Functionality
 
----
+### Manual Testing
+1. Open your browser and navigate to `http://localhost:5173`
+2. Click on "Sign Up" or navigate to `/signup`
+3. Fill in the form with valid data:
+   - Name: Your full name
+   - Email: A valid email address
+   - Password: At least 6 characters
+   - Phone: Aadhar number (12 digits)
+   - Location: Click "Get My Location" or enter coordinates manually
+4. Submit the form
+5. You should see a success message and be redirected to the login page
 
-## 💡 Motivation
+### Test Data Examples
+- **Valid coordinates for testing:**
+  - Delhi: Longitude: 77.2090, Latitude: 28.7041
+  - Mumbai: Longitude: 72.8777, Latitude: 19.0760
+  - Bangalore: Longitude: 77.5946, Latitude: 12.9716
 
-- 🚫 **Low citizen involvement** in governance
-- ⏳ **Delayed redressal** due to inefficient channels
-- 🔒 **Lack of transparency** in status tracking
-- 🎯 **Need for a centralized**, data-driven solution
+### Common Issues and Solutions
 
----
+1. **"User already exists" error**
+   - Use a different email address for testing
 
-## 🎯 Project Objectives
+2. **"Network error"**
+   - Ensure the server is running on port 8000
+   - Check if MongoDB is running
+   - Verify the API endpoint in `Client/src/ApiUri.ts`
 
-- 🗣️ **Empower Citizens** to report local problems effortlessly  
-- 🗳️ **Community Prioritization** using upvotes/downvotes  
-- ⚡ **Speed Up Government Response** through data-backed priorities  
-- 👁️ **Increase Transparency** with live updates on progress  
-- 📊 **Improve Resource Allocation** by identifying problem hotspots  
-- 🏛️ **Strengthen Governance** via greater accountability  
+3. **"Invalid coordinates" error**
+   - Make sure longitude is between -180 and 180
+   - Make sure latitude is between -90 and 90
+   - Use the "Get My Location" button for automatic coordinates
 
----
+4. **CORS errors**
+   - Ensure the CORS configuration in `Server/src/app.js` matches your client URL
+   - Check that the `env` file has the correct CORS origin
 
-## 🚀 Key Innovations
+## Features
 
-- 📍 **City Development Map**: Color-coded zones based on reports  
-- 🗳️ **Issue Voting System**: Community-driven urgency tracking  
-- 🔄 **Real-Time Progress** on complaint resolution  
-- 📋 **Govt Project Monitoring**: Track official developments  
-- 👥 **Public Collaboration**: Citizens can suggest improvements  
+### User Signup
+- ✅ Form validation (client-side and server-side)
+- ✅ Password hashing
+- ✅ Email uniqueness check
+- ✅ Location coordinates validation
+- ✅ Automatic location detection
+- ✅ Loading states and error handling
+- ✅ Success/error notifications
 
----
+### Security Features
+- ✅ JWT token authentication
+- ✅ Password hashing with bcrypt
+- ✅ CORS protection
+- ✅ Input validation and sanitization
 
-## 📚 Existing Solutions & Limitations
+## API Endpoints
 
-| Platform                  | Limitations                                             |
-|--------------------------|---------------------------------------------------------|
-| Municipal Portals        | Slow, bureaucratic interfaces                           |
-| Apps like SeeClickFix    | No unified backend, no voting/prioritization            |
-| Social Media Reporting   | No structured tracking or resolution                    |
-| Grievance Redressal Portals | Inefficient, often one-way communication               |
-| Smart City Projects      | Focused more on IoT than citizen feedback               |
+### User Management
+- `POST /api/v1/users/signupUser` - User registration
+- `POST /api/v1/users/loginUser` - User login
+- `POST /api/v1/users/logout` - User logout
 
----
+### Problem Management
+- `POST /api/v1/users/createProblem/:userId` - Create problem report
+- `GET /api/v1/users/getAllproblems` - Get all problems
+- `DELETE /api/v1/users/problem/:problemId/user/:userId` - Delete problem
 
-## ⚙️ Tech Stack
+### Comments
+- `POST /api/v1/users/addComment/:problemId/:userId` - Add comment
+- `DELETE /api/v1/users/comments/:commentId/:userId` - Delete comment
+- `GET /api/v1/users/getComment/:problemId` - Get comments for problem
 
-- **Frontend**: React.js, React Router, Bootstrap  
-- **Email Services**: EmailJS  
-- **Hosting**: GitHub Pages (or other platform)  
-> 🔖 Backend or blockchain integrations can be added in the future.
+## Database Schema
 
----
+### User Model
+```javascript
+{
+  name: String (required),
+  email: String (required, unique),
+  password: String (required, hashed),
+  phone: String,
+  location: {
+    type: String (enum: ['Point']),
+    coordinates: [Number, Number] // [longitude, latitude]
+  },
+  address: String,
+  createdAt: Date
+}
+```
 
-## 📽️ Demo & Work Progress
+## Development
 
-- ✅ Basic UI/UX implemented for user flows:  
-  - Home, About, Contact, Register, Login, Donate
-- 🔄 Features in progress:
-  - Issue reporting
-  - Map integration
-  - Voting system
-  - Live tracking module
+### Project Structure
+```
+Janhit/
+├── Client/          # React frontend
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── ApiUri.ts
+└── Server/          # Node.js backend
+    ├── src/
+    │   ├── controller/
+    │   ├── models/
+    │   ├── routes/
+    │   └── app.js
+    └── env
+```
 
-📸 *Screenshots & video demo coming soon*
+### Technologies Used
+- **Frontend:** React, TypeScript, Tailwind CSS, Axios
+- **Backend:** Node.js, Express, MongoDB, Mongoose
+- **Authentication:** JWT, bcrypt
+- **Validation:** Client-side and server-side validation
 
----
+## Contributing
 
-## 📄 License
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+## License
 
----
-
-> ✨ *“Janhit is not just a platform — it’s a movement toward smart, participative governance.”* 🇮🇳
+This project is licensed under the MIT License.
