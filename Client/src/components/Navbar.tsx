@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { ChevronDown, Menu, X } from 'lucide-react';
+import { ChevronDown, Menu, X, User, Settings, LogOut, Bell, Sun, Moon } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/Logo.jpeg'
 import toast from 'react-hot-toast';
+import { useTheme } from '../context/ThemeContext';
+import { useI18n } from '../context/I18nContext';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [creatorDropdownOpen, setCreatorDropdownOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState('');
   const navigate = useNavigate();
+  const { isDarkMode, toggleTheme } = useTheme();
+  const { lang, setLang, t } = useI18n();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -29,163 +34,274 @@ const Navbar: React.FC = () => {
 
   const closeMenu = () => {
     setIsOpen(false);
-    setCreatorDropdownOpen(false);
+    setUserDropdownOpen(false);
   };
 
   return (
-    <nav style={{ backgroundColor: 'rgb(251, 251, 249)' }} className="shadow-sm px-4 py-4 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Logo */}
-        <div className="flex items-center space-x-4">
-          <a href="/" className="text-black font-bold flex items-center gap-2 text-xl">
-            <img className='rounded-full w-[50px]' src={logo} alt="" />
-            Janhit
-          </a>
-        </div>
-
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-8">
-          <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors">Home</Link>
-
-          <div className="relative">
-            <Link
-              to="/mycomplaints"
-              className="flex items-center text-gray-700 hover:text-gray-900 transition-colors"
-            >
-              My Complaints
+    <nav className="bg-white shadow-md border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <div className="flex items-center">
+            <Link to="/" className="flex items-center space-x-3">
+              <img className="h-10 w-10 rounded-full object-cover" src={logo} alt="Janhit Logo" />
+              <span className="text-xl font-bold text-gray-900">{t('app_name')}</span>
             </Link>
           </div>
 
-          <div className="relative">
+          {/* Desktop Navigation */}
+          <div className="hidden md:block">
+            <div className="flex items-center space-x-8">
+              <Link 
+                to="/" 
+                className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors"
+              >
+                Home
+              </Link>
+              <Link 
+                to="/feed" 
+                className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors"
+              >
+                Community Feed
+              </Link>
+              {isLoggedIn && (
+                <Link 
+                  to="/mycomplaints" 
+                  className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors"
+                >
+                  My Complaints
+                </Link>
+              )}
+              <Link 
+                to="/officials" 
+                className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors"
+              >
+                Officials
+              </Link>
+            </div>
+          </div>
+
+          {/* Right Side Actions */}
+          <div className="hidden md:flex items-center space-x-4">
+            {/* Theme Toggle */}
             <button
-              className="flex items-center text-gray-700 hover:text-gray-900 transition-colors"
-              onClick={() => setCreatorDropdownOpen(!creatorDropdownOpen)}
+              onClick={toggleTheme}
+              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
+              title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
-              Government Officials <ChevronDown className={`ml-1 h-4 w-4 transition-transform duration-200 ${creatorDropdownOpen ? 'rotate-180' : ''}`} />
+              {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
-            {creatorDropdownOpen && (
-              <div className="absolute left-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-10 animate-fadeIn transition-all">
-                {[
-                  'Municipal Officer',
-                  'City Engineer',
-                  'Sanitation Department',
-                  'Road & Transport Authority',
-                  'Water Supply Officer',
-                  'Public Safety & Surveillance',
-                ].map((role) => (
-                  <Link
-                    key={role}
-                    to={`/officials?role=${encodeURIComponent(role)}`}
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    {role}
-                  </Link>
-                ))}
+
+            {/* Language Selector */}
+            <select 
+              value={lang} 
+              onChange={(e) => setLang(e.target.value as any)} 
+              className="text-sm border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="en">EN</option>
+              <option value="hi">हिं</option>
+            </select>
+
+            {/* Report Issue Button */}
+            <Link
+              to="/map"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-2"
+            >
+              <span>{t('report_issue')}</span>
+              <span>→</span>
+            </Link>
+
+            {/* User Menu */}
+            {isLoggedIn ? (
+              <div className="relative">
+                <button
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  className="flex items-center space-x-2 p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <User className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <ChevronDown className={`h-4 w-4 transition-transform ${userDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {userDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 border border-gray-200 z-10">
+                    <Link
+                      to="/dashboardUser"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setUserDropdownOpen(false)}
+                    >
+                      <User className="h-4 w-4 mr-3" />
+                      Profile
+                    </Link>
+                    <Link
+                      to="/mycomplaints"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setUserDropdownOpen(false)}
+                    >
+                      <Settings className="h-4 w-4 mr-3" />
+                      My Complaints
+                    </Link>
+                    <div className="border-t border-gray-100"></div>
+                    <button
+                      onClick={() => {
+                        handleLogOut();
+                        setUserDropdownOpen(false);
+                      }}
+                      className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                    >
+                      <LogOut className="h-4 w-4 mr-3" />
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center space-x-3">
+                <Link
+                  to="/login"
+                  className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  Sign Up
+                </Link>
               </div>
             )}
           </div>
-        </div>
 
-        {/* Right Side Navigation */}
-        <div className="hidden md:flex items-center space-x-4">
-          <Link to="/aboutus" className="text-gray-700 hover:text-gray-900 transition-colors">About</Link>
-          <Link to="/contactUs" className="text-gray-700 hover:text-gray-900 transition-colors">Contact Us</Link>
-          <Link to="/admin/login" className="text-gray-700 hover:text-gray-900 transition-colors">Admin</Link>
-          {
-            isLoggedIn 
-            ? 
-            <>
-            <Link to="/dashboardUser" className="inline-block">
-                <img
-                  src="\public\Profile.png"
-                  alt="User"
-                  className="rounded-full border border-black size-12"
-                />
-              </Link>
-              <button
-                onClick={handleLogOut}
-                className="text-gray-700 cursor-pointer"
-              >
-                Logout
-              </button>
-
-            </>
-            : <Link to="/login" className="text-gray-700 hover:text-gray-900 transition-colors">Login</Link>
-          }
-          <Link to="/map" className="bg-gray-800 text-white px-4 py-2 rounded-md flex items-center hover:bg-gray-700 transition-colors">
-            Report an issue →
-          </Link>
-        </div>
-
-        {/* Mobile menu button */}
-        <div className="md:hidden flex items-center">
-          <button onClick={toggleMenu} className="text-gray-700 hover:text-gray-900 focus:outline-none">
-            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <button
+              onClick={toggleMenu}
+              className="p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+            >
+              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Mobile menu */}
       {isOpen && (
-        <div className="md:hidden mt-4 pt-4 border-t border-gray-200 animate-slideDown origin-top transition-all duration-300 ease-in-out">
-          <div className="space-y-6 px-4 pb-6">
-            {/* My Complaints (mobile) */}
-            <div>
-              <Link onClick={closeMenu} to="/mycomplaints" className="block text-gray-700 hover:text-gray-900">
-                My Complaints
+        <div className="md:hidden bg-white border-t border-gray-200 shadow-lg">
+          <div className="px-4 py-6 space-y-4">
+            {/* Navigation Links */}
+            <div className="space-y-3">
+              <Link
+                to="/"
+                onClick={closeMenu}
+                className="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
+              >
+                Home
+              </Link>
+              <Link
+                to="/feed"
+                onClick={closeMenu}
+                className="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
+              >
+                Community Feed
+              </Link>
+              {isLoggedIn && (
+                <Link
+                  to="/mycomplaints"
+                  onClick={closeMenu}
+                  className="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
+                >
+                  My Complaints
+                </Link>
+              )}
+              <Link
+                to="/officials"
+                onClick={closeMenu}
+                className="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
+              >
+                Officials
               </Link>
             </div>
 
-            {/* Government Officials (mobile) */}
-            <div>
-              <button
-                onClick={() => setCreatorDropdownOpen(!creatorDropdownOpen)}
-                className="flex items-center justify-between w-full text-gray-700 hover:text-gray-900"
-              >
-                Government Officials <ChevronDown className={`ml-1 h-4 w-4 transition-transform duration-200 ${creatorDropdownOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {creatorDropdownOpen && (
-                <div className="pl-4 mt-2 space-y-2 animate-fadeIn">
-                  {[
-                    'Municipal Officer',
-                    'City Engineer',
-                    'Sanitation Department',
-                    'Road & Transport Authority',
-                    'Water Supply Officer',
-                    'Public Safety & Surveillance',
-                  ].map((role) => (
-                    <a
-                      key={role}
-                      onClick={closeMenu}
-                      href="#"
-                      className="block py-1 text-gray-700 hover:text-gray-900"
-                    >
-                      <Link to='/dashboardOfficial'>{role}</Link>
-                    </a>
-                  ))}
-                </div>
-              )}
+            {/* Divider */}
+            <div className="border-t border-gray-200 my-4"></div>
+
+            {/* User Actions */}
+            {isLoggedIn ? (
+              <div className="space-y-3">
+                <Link
+                  to="/dashboardUser"
+                  onClick={closeMenu}
+                  className="flex items-center px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
+                >
+                  <User className="h-4 w-4 mr-3" />
+                  Profile
+                </Link>
+                <button
+                  onClick={() => {
+                    handleLogOut();
+                    closeMenu();
+                  }}
+                  className="flex items-center w-full px-3 py-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                >
+                  <LogOut className="h-4 w-4 mr-3" />
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <Link
+                  to="/login"
+                  onClick={closeMenu}
+                  className="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors text-center"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  onClick={closeMenu}
+                  className="block px-3 py-2 bg-gray-900 text-white hover:bg-gray-800 rounded-md transition-colors text-center"
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
+
+            {/* Divider */}
+            <div className="border-t border-gray-200 my-4"></div>
+
+            {/* Settings */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between px-3 py-2">
+                <span className="text-sm text-gray-600">Theme</span>
+                <button
+                  onClick={toggleTheme}
+                  className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                </button>
+              </div>
+              <div className="flex items-center justify-between px-3 py-2">
+                <span className="text-sm text-gray-600">Language</span>
+                <select
+                  value={lang}
+                  onChange={(e) => setLang(e.target.value as any)}
+                  className="text-sm border border-gray-300 rounded-md px-2 py-1"
+                >
+                  <option value="en">EN</option>
+                  <option value="hi">हिं</option>
+                </select>
+              </div>
             </div>
 
-            {/* Other links */}
-            <Link onClick={closeMenu} to="/" className="block text-gray-700 hover:text-gray-900">Home</Link>
-            <Link onClick={closeMenu} to="/aboutus" className="block text-gray-700 hover:text-gray-900">About</Link>
-            <Link onClick={closeMenu} to="/contactUs" className="block text-gray-700 hover:text-gray-900">Contact Us</Link>
-            <Link onClick={closeMenu} to="/admin/login" className="block text-gray-700 hover:text-gray-900">Admin</Link>
-            {isLoggedIn ? (
-              <>
-                <Link onClick={closeMenu} to="/dashboardUser" className="block text-gray-700 hover:text-gray-900">Profile</Link>
-                <button onClick={() => { handleLogOut(); closeMenu(); }} className="block text-left w-full text-gray-700">Logout</button>
-              </>
-            ) : (
-              <Link onClick={closeMenu} to="/login" className="block text-gray-700 hover:text-gray-900">Login</Link>
-            )}
+            {/* Report Issue Button */}
             <Link
-              onClick={closeMenu}
               to="/map"
-              className="block w-full bg-gray-800 text-white px-4 py-2 rounded-md text-center hover:bg-gray-700 transition-colors"
+              onClick={closeMenu}
+              className="block w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-md text-center font-medium transition-colors"
             >
-              Report an issue →
+              {t('report_issue')} →
             </Link>
           </div>
         </div>
