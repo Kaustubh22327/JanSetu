@@ -1,57 +1,136 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { 
+    MapPin, 
+    Trash2, 
+    Droplet, 
+    Lightbulb, 
+    Trees, 
+    Construction
+} from 'lucide-react';
+
+const categories = [
+    {
+        Icon: MapPin,
+        title: "Road Issues",
+        description: "Report potholes, broken roads, and traffic signals",
+        path: "/map?category=road",
+        code: "janhit/road-issues",
+        color: "blue"
+    },
+    {
+        Icon: Trash2,
+        title: "Garbage Collection",
+        description: "Track and report waste management issues",
+        path: "/map?category=garbage",
+        code: "janhit/garbage-collection",
+        color: "green"
+    },
+    {
+        Icon: Droplet,
+        title: "Water Supply",
+        description: "Report water-related problems in your area",
+        path: "/map?category=water",
+        code: "janhit/water-supply",
+        color: "cyan"
+    },
+    {
+        Icon: Lightbulb,
+        title: "Street Lights",
+        description: "Report non-functional or damaged street lights",
+        path: "/map?category=lights",
+        code: "janhit/street-lights",
+        color: "yellow"
+    },
+    {
+        Icon: Trees,
+        title: "Parks & Gardens",
+        description: "Report issues in public parks and green spaces",
+        path: "/map?category=parks",
+        code: "janhit/parks-gardens",
+        color: "emerald"
+    },
+    {
+        Icon: Construction,
+        title: "Infrastructure",
+        description: "Report issues with public infrastructure",
+        path: "/map?category=infrastructure",
+        code: "janhit/infrastructure",
+        color: "orange"
+    }
+];
+
+const getColorClasses = (color: string) => ({
+    bg: `bg-${color}-50`,
+    text: `text-${color}-500`,
+    border: `hover:border-${color}-100`
+});
 
 const HeroSection: React.FC = () => {
     return (
-        <section className="py-16 md:py-24">
-            <div className="max-w-5xl mx-auto px-4 text-center">
-                <div className="mb-4">
-                    <p className="text-gray-600 uppercase tracking-wide text-sm md:text-base">
-                        THE PLATFORM FOR LOCAL CIVIC ENGAGEMENT
-                    </p>
-                </div>
-
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-gray-900 mb-6">
-                    Your City, Your Voice — आपका शहर, आपकी आवाज़
-                </h1>
-
-                <div className="mb-8 md:mb-12">
-                    <p className="text-gray-600 text-lg mx-auto max-w-3xl">
-                        The fastest way to report civic issues in your area.
-                        Raise complaints, vote on local problems, and track resolutions — all in one place.
-                    </p>
-                </div>
-
-                <div className="flex flex-col md:flex-row gap-4 justify-center mb-12">
-                    <Link
-                        to="/map"
-                        className="bg-gray-900 text-white px-8 py-3 rounded-md flex items-center justify-center hover:bg-gray-800 transition duration-300"
+        <section className="relative pt-20 pb-24 overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4">
+                {/* Main Heading */}
+                <div className="text-center mb-20">
+                    <motion.h1 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="text-4xl sm:text-6xl lg:text-7xl font-bold text-[#303030] mb-6 tracking-tight"
                     >
-                        Report an issue <span className="ml-2">→</span>
-                    </Link>
-                    <a
-                        href="#"
-                        className="border border-gray-500 text-gray-800 px-8 py-3 rounded-md hover:bg-gray-100 transition duration-300 font-bold"
+                        Your one-stop platform for
+                        <br />
+                        civic reporting
+                    </motion.h1>
+
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                        className="text-lg sm:text-xl text-[#666666] max-w-3xl mx-auto"
                     >
-                        Contact our team
-                    </a>
+                        Janhit is the largest ecosystem where citizens report, track, and resolve civic issues.
+                        Join thousands in making your city better.
+                    </motion.p>
                 </div>
 
+                {/* Category Cards */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.4 }}
+                    className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto"
+                >
+                    {categories.map((category, index) => {
+                        const colors = getColorClasses(category.color);
+                        return (
+                            <Link 
+                                key={index}
+                                to={category.path}
+                                className={`group bg-white rounded-xl border border-gray-200 ${colors.border} hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 p-6 flex flex-col`}
+                            >
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className={`p-2 ${colors.bg} rounded-lg`}>
+                                        <category.Icon className={`w-6 h-6 ${colors.text}`} />
+                                    </div>
+                                </div>
+                                
+                                <h3 className="text-xl font-semibold text-[#303030] mb-2">
+                                    {category.title}
+                                </h3>
+                                
+                                <p className="text-[#666666] text-sm mb-4 flex-grow">
+                                    {category.description}
+                                </p>
 
-                <div className="relative w-full aspect-video max-w-4xl mx-auto rounded-lg overflow-hidden shadow-lg">
-                    <iframe
-                        className="w-full h-full"
-                        src="https://www.youtube.com/embed/3GVlKTg0Xy0"
-                        title="How It Works"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                    ></iframe>
-                </div>
-
-
-                <p className="text-gray-500 mt-6 text-sm">
-                    वीडियो देखें और समझें — कैसे आप अपने शहर की आवाज़ बन सकते हैं।
-                </p>
+                                <div className="text-sm font-mono text-gray-400 pt-4 border-t border-gray-100">
+                                    {category.code}
+                                </div>
+                            </Link>
+                        );
+                    })}
+                </motion.div>
             </div>
         </section>
     );
