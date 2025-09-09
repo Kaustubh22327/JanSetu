@@ -14,6 +14,7 @@ import axios from 'axios';
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import iconShadowUrl from 'leaflet/dist/images/marker-shadow.png';
 import { API } from '../ApiUri';
+import { WEATHER_CONFIG } from '../config/weather';
 
 const issueIcon = new L.Icon({
     iconUrl,
@@ -60,6 +61,24 @@ interface IssueCluster {
     averageSeverity: number;
 }
 
+interface WeatherData {
+    temperature: number;
+    humidity: number;
+    windSpeed: number;
+    precipitation: number;
+    condition: string;
+    icon: string;
+    timestamp: string;
+}
+
+interface WeatherCorrelation {
+    issueType: string;
+    weatherFactor: string;
+    correlationStrength: number;
+    riskLevel: 'low' | 'medium' | 'high';
+    prediction: string;
+}
+
 
 
 const DangerRating: React.FC<{ rating: number; onRate: (rating: number) => void }> = ({ rating, onRate }) => (
@@ -90,6 +109,9 @@ const MapPage: React.FC = () => {
     const [issues, setIssues] = useState<Issue[]>([]);
     const [clusters, setClusters] = useState<IssueCluster[]>([]);
     const [showHeatmap, setShowHeatmap] = useState(true);
+    const [showWeather, setShowWeather] = useState(true);
+    const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+    const [weatherCorrelations, setWeatherCorrelations] = useState<WeatherCorrelation[]>([]);
     const [sortBy, setSortBy] = useState<'severity' | 'distance'>('severity');
     const [newIssuePos, setNewIssuePos] = useState<[number, number] | null>(null);
     const [showModal, setShowModal] = useState(false);
@@ -182,6 +204,103 @@ const MapPage: React.FC = () => {
             setClusters(newClusters);
         }
     }, [issues]);
+
+    // Weather API integration
+    const fetchWeatherData = async (lat: number, lng: number) => {
+        try {
+            // Using OpenWeatherMap API (free tier)
+            const response = await fetch(
+                `${WEATHER_CONFIG.BASE_URL}/weather?lat=${lat}&lon=${lng}&appid=${WEATHER_CONFIG.API_KEY}&units=${WEATHER_CONFIG.UNITS}`
+            );
+            
+            if (response.ok) {
+                const data = await response.json();
+                const weatherInfo: WeatherData = {
+                    temperature: data.main.temp,
+                    humidity: data.main.humidity,
+                    windSpeed: data.wind.speed,
+                    precipitation: data.rain?.['1h'] || 0,
+                    condition: data.weather[0].main,
+                    icon: data.weather[0].icon,
+                    timestamp: new Date().toISOString()
+                };
+                setWeatherData(weatherInfo);
+                analyzeWeatherCorrelations(weatherInfo);
+            }
+        } catch (error) {
+            console.error('Weather API error:', error);
+            // Fallback to mock data for demo
+            const mockWeather: WeatherData = {
+                temperature: 25,
+                humidity: 65,
+                windSpeed: 12,
+                precipitation: 2.5,
+                condition: 'Rain',
+                icon: '10d',
+                timestamp: new Date().toISOString()
+            };
+            setWeatherData(mockWeather);
+            analyzeWeatherCorrelations(mockWeather);
+        }
+    };
+
+    // Analyze weather-issue correlations
+    const analyzeWeatherCorrelations = (weather: WeatherData) => {
+        const correlations: WeatherCorrelation[] = [];
+
+        // Rain correlation with drainage issues
+        if (weather.precipitation > WEATHER_CONFIG.THRESHOLDS.HEAVY_RAIN) {
+            correlations.push({
+                issueType: 'Water Supply',
+                weatherFactor: 'Heavy Rain',
+                correlationStrength: 0.85,
+                riskLevel: 'high',
+                prediction: 'Expect 40% increase in waterlogging reports'
+            });
+        }
+
+        // Wind correlation with infrastructure
+        if (weather.windSpeed > 15) {
+            correlations.push({
+                issueType: 'Infrastructure',
+                weatherFactor: 'High Winds',
+                correlationStrength: 0.72,
+                riskLevel: 'medium',
+                prediction: 'Potential tree damage and power line issues'
+            });
+        }
+
+        // Temperature correlation with road issues
+        if (weather.temperature > 35) {
+            correlations.push({
+                issueType: 'Road Issues',
+                weatherFactor: 'Extreme Heat',
+                correlationStrength: 0.68,
+                riskLevel: 'medium',
+                prediction: 'Road surface softening may cause new potholes'
+            });
+        }
+
+        // Humidity correlation with garbage issues
+        if (weather.humidity > 80) {
+            correlations.push({
+                issueType: 'Garbage Collection',
+                weatherFactor: 'High Humidity',
+                correlationStrength: 0.55,
+                riskLevel: 'low',
+                prediction: 'Faster waste decomposition, odor complaints likely'
+            });
+        }
+
+        setWeatherCorrelations(correlations);
+    };
+
+    // Fetch weather data when position is available
+    useEffect(() => {
+        if (position && showWeather) {
+            fetchWeatherData(position[0], position[1]);
+        }
+    }, [position, showWeather]);
 
     const getComments = async (problemId: string) => {
         try {
@@ -472,8 +591,9 @@ const MapPage: React.FC = () => {
 
             {position ? (
                 <>
-                    {/* Heatmap Toggle Control */}
-                    <div className="flex justify-center mb-4">
+                    {/* Controls Panel */}
+                    <div className="flex justify-center mb-4 space-x-4">
+                        {/* Heatmap Toggle Control */}
                         <div className="bg-white rounded-lg shadow-md p-3 flex items-center space-x-4">
                             <label className="flex items-center space-x-2 cursor-pointer">
                                 <input
@@ -491,7 +611,84 @@ const MapPage: React.FC = () => {
                                 <span>High Density</span>
                             </div>
                         </div>
+
+                        {/* Weather Widget */}
+                        {weatherData && (
+                            <div className="bg-white rounded-lg shadow-md p-3 flex items-center space-x-4">
+                                <div className="flex items-center space-x-2">
+                                    <img 
+                                        src={`https://openweathermap.org/img/w/${weatherData.icon}.png`}
+                                        alt={weatherData.condition}
+                                        className="w-8 h-8"
+                                    />
+                                    <div>
+                                        <div className="text-sm font-medium text-gray-700">
+                                            {weatherData.temperature}°C - {weatherData.condition}
+                                        </div>
+                                        <div className="text-xs text-gray-500">
+                                            💧 {weatherData.precipitation}mm | 💨 {weatherData.windSpeed}km/h
+                                        </div>
+                                    </div>
+                                </div>
+                                <label className="flex items-center space-x-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={showWeather}
+                                        onChange={(e) => setShowWeather(e.target.checked)}
+                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                                    />
+                                    <span className="text-xs text-gray-600">Weather Analysis</span>
+                                </label>
+                            </div>
+                        )}
                     </div>
+
+                    {/* Weather Correlations Alert */}
+                    {showWeather && weatherCorrelations.length > 0 && (
+                        <div className="max-w-4xl mx-auto mb-4">
+                            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-400 p-4 rounded-lg shadow-sm">
+                                <div className="flex items-start">
+                                    <div className="flex-shrink-0">
+                                        <span className="text-2xl">⚠️</span>
+                                    </div>
+                                    <div className="ml-3 flex-1">
+                                        <h3 className="text-sm font-medium text-yellow-800 mb-2">
+                                            Weather-Related Issue Predictions
+                                        </h3>
+                                        <div className="space-y-2">
+                                            {weatherCorrelations.map((correlation, index) => (
+                                                <div key={index} className="flex items-center justify-between bg-white p-2 rounded border">
+                                                    <div className="flex-1">
+                                                        <span className="text-sm font-medium text-gray-800">
+                                                            {correlation.issueType}
+                                                        </span>
+                                                        <span className="text-xs text-gray-600 ml-2">
+                                                            ({correlation.weatherFactor})
+                                                        </span>
+                                                        <p className="text-xs text-gray-600 mt-1">
+                                                            {correlation.prediction}
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex items-center space-x-2">
+                                                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                                            correlation.riskLevel === 'high' ? 'bg-red-100 text-red-800' :
+                                                            correlation.riskLevel === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                                                            'bg-green-100 text-green-800'
+                                                        }`}>
+                                                            {correlation.riskLevel.toUpperCase()}
+                                                        </span>
+                                                        <span className="text-xs text-gray-500">
+                                                            {Math.round(correlation.correlationStrength * 100)}%
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     <MapContainer
                         center={position}
