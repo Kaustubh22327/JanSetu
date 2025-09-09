@@ -26,6 +26,11 @@ const problemReportSchema = new mongoose.Schema({
     }
   },
 
+  address: {
+    type: String,
+    default: ''
+  },
+
   status: {
     type: String,
     enum: ['pending', 'under_review', 'assigned', 'resolved'],
@@ -58,6 +63,32 @@ const problemReportSchema = new mongoose.Schema({
   adminNotes: {
     type: String
   },
+  priority: {
+    type: String,
+    enum: ['low', 'medium', 'high'],
+    default: 'medium'
+  },
+  slaDueAt: {
+    type: Date,
+    default: null
+  },
+  timeline: [
+    {
+      type: {
+        type: String
+      },
+      message: String,
+      at: {
+        type: Date,
+        default: Date.now
+      }
+    }
+  ],
+  media: [
+    {
+      type: String // relative URL paths like /uploads/...
+    }
+  ],
   createdAt: {
     type: Date,
     default: Date.now
@@ -65,6 +96,7 @@ const problemReportSchema = new mongoose.Schema({
 });
 
 problemReportSchema.index({ location: '2dsphere' });
+problemReportSchema.index({ title: 'text', description: 'text' });
 
 const ProblemReport = mongoose.model('ProblemReport', problemReportSchema);
 export default ProblemReport;
