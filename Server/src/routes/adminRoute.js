@@ -8,7 +8,8 @@ import {
   updateComplaintStatus, 
   deleteComplaint, 
   getDashboardStats, 
-  assignComplaintToOfficial 
+  assignComplaintToOfficial, 
+  getOfficials 
 } from "../controller/adminController.js";
 
 const router = Router();
@@ -26,5 +27,8 @@ router.route("/complaints/:complaintId").get(verifyJWT, getComplaintById);
 router.route("/complaints/:complaintId/status").put(verifyJWT, updateComplaintStatus);
 router.route("/complaints/:complaintId").delete(verifyJWT, deleteComplaint);
 router.route("/complaints/:complaintId/assign").post(verifyJWT, assignComplaintToOfficial);
+
+// Officials listing
+router.route("/officials").get(verifyJWT, getOfficials);
 
 export default router; 
