@@ -34,12 +34,12 @@ const testDatabaseOperations = async () => {
 
     // Test 2: Create a test user if not exists
     console.log('2. Creating test user...');
-    let testUser = await User.findOne({ email: 'test@janhit.com' });
+    let testUser = await User.findOne({ email: 'test@jansetu.com' });
     
     if (!testUser) {
       testUser = new User({
         name: 'Test User',
-        email: 'test@janhit.com',
+        email: 'test@jansetu.com',
         password: 'hashedpassword123',
         location: {
           type: 'Point',
@@ -201,7 +201,7 @@ const cleanup = async () => {
     
     // Remove test data
     await Post.deleteMany({ title: 'Test Community Post' });
-    await User.deleteMany({ email: 'test@janhit.com' });
+    await User.deleteMany({ email: 'test@jansetu.com' });
     await Bookmark.deleteMany({});
     await Notification.deleteMany({ message: 'Test User liked your post' });
     

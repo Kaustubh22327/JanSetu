@@ -9,7 +9,7 @@ cloudinary.config({
 });
 
 // Upload image to Cloudinary with optimizations
-export const uploadToCloudinary = async (localFilePath, folder = 'janhit-feed') => {
+export const uploadToCloudinary = async (localFilePath, folder = 'jansetu-feed') => {
   try {
     if (!localFilePath) return null;
 

@@ -33,7 +33,7 @@ const Footer: React.FC = () => {
                     {/* Logo */}
                     <div className="md:col-span-4">
                         <a href="/" className="text-white text-3xl font-bold">
-                            Janhit 
+                            JanSetu 
                         </a>
                         <p className="text-sm text-gray-300 mt-2">Your City, Your Voice — आपकी आवाज़, आपकी पहचान</p>
                     </div>
@@ -101,7 +101,7 @@ const Footer: React.FC = () => {
                 {/* Bottom */}
                 <div className="border-t border-gray-700 pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                     <p className="text-sm text-gray-400">
-                        © {currentYear} Janhit. All rights reserved.
+                        © {currentYear} JanSetu. All rights reserved.
                     </p>
                     <div className="flex items-center gap-4 text-sm text-gray-400">
                         <a href="#" className="hover:text-white">Privacy Policy</a>

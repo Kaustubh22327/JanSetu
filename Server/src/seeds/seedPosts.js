@@ -157,12 +157,12 @@ const floodPosts = [
 // Create default admin user for posts
 const createDefaultUser = async () => {
   try {
-    let defaultUser = await User.findOne({ email: 'system@janhit.com' });
+    let defaultUser = await User.findOne({ email: 'system@jansetu.com' });
     
     if (!defaultUser) {
       defaultUser = new User({
         name: 'Janhit News Team',
-        email: 'system@janhit.com',
+        email: 'system@jansetu.com',
         password: 'systemuser123', // This would be hashed in real implementation
         location: {
           type: 'Point',
@@ -292,7 +292,7 @@ export const seedFloodPosts = async () => {
 export const clearAllPosts = async () => {
   try {
     const result = await Post.deleteMany({});
-    await User.deleteMany({ email: 'system@janhit.com' });
+    await User.deleteMany({ email: 'system@jansetu.com' });
     console.log(`🗑️ Cleared ${result.deletedCount} posts and system user`);
     return result;
   } catch (error) {

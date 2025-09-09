@@ -19,7 +19,7 @@ export const verifyJWT = async (req, res, next) => {
       const adminUser = {
         _id: 'admin_001',
         name: 'System Administrator',
-        email: 'admin@janhit.com',
+        email: 'admin@jansetu.com',
         role: 'admin',
         permissions: {
           canViewComplaints: true,

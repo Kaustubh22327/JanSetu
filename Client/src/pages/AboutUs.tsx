@@ -14,7 +14,7 @@ const AboutUs: React.FC = () => {
             </h1>
 
             <p className="text-gray-700 text-lg mb-4">
-              <strong>Janhit</strong> is a civic engagement platform designed to bridge the gap between citizens and local authorities. We make it easy for residents to report problems like potholes, streetlight failures, or water leaks using a location-based map interface.
+              <strong>JanSetu</strong> is a civic engagement platform designed to bridge the gap between citizens and local authorities. We make it easy for residents to report problems like potholes, streetlight failures, or water leaks using a location-based map interface.
             </p>
 
             <p className="text-gray-700 text-lg mb-4">
@@ -22,7 +22,7 @@ const AboutUs: React.FC = () => {
             </p>
 
             <p className="text-gray-700 text-lg mb-6">
-              Whether you're a concerned resident or a government official, <span className="text-blue-600 font-semibold">Janhit</span> brings real-time civic collaboration to your fingertips.
+              Whether you're a concerned resident or a government official, <span className="text-blue-600 font-semibold">JanSetu</span> brings real-time civic collaboration to your fingertips.
             </p>
 
             <Link

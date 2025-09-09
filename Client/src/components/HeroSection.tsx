@@ -16,7 +16,7 @@ const categories = [
         title: "Road Issues",
         description: "Report potholes, broken roads, and traffic signals",
         path: "/map?category=road",
-        code: "janhit/road-issues",
+        code: "jansetu/road-issues",
         color: "blue"
     },
     {
@@ -24,7 +24,7 @@ const categories = [
         title: "Garbage Collection",
         description: "Track and report waste management issues",
         path: "/map?category=garbage",
-        code: "janhit/garbage-collection",
+        code: "jansetu/garbage-collection",
         color: "green"
     },
     {
@@ -32,7 +32,7 @@ const categories = [
         title: "Water Supply",
         description: "Report water-related problems in your area",
         path: "/map?category=water",
-        code: "janhit/water-supply",
+        code: "jansetu/water-supply",
         color: "cyan"
     },
     {
@@ -40,7 +40,7 @@ const categories = [
         title: "Street Lights",
         description: "Report non-functional or damaged street lights",
         path: "/map?category=lights",
-        code: "janhit/street-lights",
+        code: "jansetu/street-lights",
         color: "yellow"
     },
     {
@@ -48,7 +48,7 @@ const categories = [
         title: "Parks & Gardens",
         description: "Report issues in public parks and green spaces",
         path: "/map?category=parks",
-        code: "janhit/parks-gardens",
+        code: "jansetu/parks-gardens",
         color: "emerald"
     },
     {
@@ -56,7 +56,7 @@ const categories = [
         title: "Infrastructure",
         description: "Report issues with public infrastructure",
         path: "/map?category=infrastructure",
-        code: "janhit/infrastructure",
+        code: "jansetu/infrastructure",
         color: "orange"
     }
 ];
@@ -90,7 +90,7 @@ const HeroSection: React.FC = () => {
                         transition={{ duration: 0.6, delay: 0.2 }}
                         className="text-lg sm:text-xl text-[#666666] max-w-3xl mx-auto"
                     >
-                        Janhit is the largest ecosystem where citizens report, track, and resolve civic issues.
+                        JanSetu is the largest ecosystem where citizens report, track, and resolve civic issues.
                         Join thousands in making your city better.
                     </motion.p>
                 </div>

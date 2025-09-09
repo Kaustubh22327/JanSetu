@@ -16,7 +16,7 @@ export const adminLogin = async (req, res) => {
     const { email, password } = req.body;
     
     // Hardcoded admin credentials
-    const ADMIN_EMAIL = "admin@janhit.com";
+    const ADMIN_EMAIL = "admin@jansetu.com";
     const ADMIN_PASSWORD = "admin123";
     
     // Check if credentials match

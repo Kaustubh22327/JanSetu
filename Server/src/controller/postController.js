@@ -75,7 +75,7 @@ export const createPost = async (req, res) => {
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         try {
-          const uploadResult = await uploadToCloudinary(file.path, 'janhit-feed');
+          const uploadResult = await uploadToCloudinary(file.path, 'jansetu-feed');
           if (uploadResult) {
             images.push({
               url: uploadResult.url,

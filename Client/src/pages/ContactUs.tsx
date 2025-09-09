@@ -34,7 +34,7 @@ export default function ContactUs() {
           <div className="lg:w-1/2 mb-8 lg:mb-0">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Contact Us</h1>
             <p className="text-gray-600 mb-6">
-              Have questions, feedback, or suggestions for Janhit? Reach out and help us build a better community.
+              Have questions, feedback, or suggestions for JanSetu? Reach out and help us build a better community.
             </p>
 
             <div className="mb-6">
@@ -54,14 +54,14 @@ export default function ContactUs() {
               <div>
                 <h3 className="font-medium text-gray-800 mb-2">Share Feedback</h3>
                 <p className="text-gray-600 text-sm">
-                  Tell us how Janhit is helping you or what we can improve—your voice matters.
+                  Tell us how JanSetu is helping you or what we can improve—your voice matters.
                 </p>
               </div>
 
               <div>
                 <h3 className="font-medium text-gray-800 mb-2">Partnerships</h3>
                 <p className="text-gray-600 text-sm">
-                  Want to collaborate with Janhit or bring civic tech to your area? Reach out for partnerships.
+                  Want to collaborate with JanSetu or bring civic tech to your area? Reach out for partnerships.
                 </p>
               </div>
             </div>
@@ -138,7 +138,7 @@ export default function ContactUs() {
                 </button>
 
                 <p className="text-sm text-center text-gray-500 mt-4">
-                  By reaching out, you agree to Janhit's{' '}
+                  By reaching out, you agree to JanSetu's{' '}
                   <a href="#" className="text-gray-700 font-medium">Terms of Service</a>{' '}
                   and{' '}
                   <a href="#" className="text-gray-700 font-medium">Privacy Policy</a>.

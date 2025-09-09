@@ -1,5 +1,5 @@
 PORT=8000
-MONGODB_URI=mongodb://localhost:27017/janhit
+MONGODB_URI=mongodb://localhost:27017/jansetu
 ACCESS_TOKEN_SECRET=your_jwt_secret_key_here_change_in_production
 CORS=http://localhost:5173
 

@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { toast } from 'react-hot-toast';
+import React, { createElement, useEffect, useState } from 'react';
+import { toast, Toaster } from 'react-hot-toast';
 import {
     MapContainer,
     TileLayer,
     Marker,
     Popup,
     useMapEvents,
-    Circle,
 } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -52,14 +51,6 @@ interface Issue {
     media?: string[];
 }
 
-interface IssueCluster {
-    id: string;
-    position: [number, number];
-    issues: Issue[];
-    count: number;
-    averageSeverity: number;
-}
-
 
 
 const DangerRating: React.FC<{ rating: number; onRate: (rating: number) => void }> = ({ rating, onRate }) => (
@@ -88,8 +79,6 @@ const AddIssueOnClickComponent: React.FC<{ setNewIssuePos: any; setShowModal: an
 const MapPage: React.FC = () => {
     const [position, setPosition] = useState<[number, number] | null>(null);
     const [issues, setIssues] = useState<Issue[]>([]);
-    const [clusters, setClusters] = useState<IssueCluster[]>([]);
-    const [showHeatmap, setShowHeatmap] = useState(true);
     const [sortBy, setSortBy] = useState<'severity' | 'distance'>('severity');
     const [newIssuePos, setNewIssuePos] = useState<[number, number] | null>(null);
     const [showModal, setShowModal] = useState(false);
@@ -98,7 +87,6 @@ const MapPage: React.FC = () => {
     const [newComment, setNewComment] = useState('');
     const [comments, setComments] = useState<any[]>([]);
     const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
-    const [selectedCluster, setSelectedCluster] = useState<IssueCluster | null>(null);
     const [newIssueTitle, setNewIssueTitle] = useState('');
     const [newCategory, setNewCategory] = useState('');
     const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
@@ -135,53 +123,6 @@ const MapPage: React.FC = () => {
             }
         );
     }, []);
-
-    // Clustering algorithm for heatmap
-    const clusterIssues = (issues: Issue[], clusterRadius: number = 0.001) => {
-        const clusters: IssueCluster[] = [];
-        const processed = new Set<string>();
-
-        issues.forEach(issue => {
-            if (processed.has(issue.id)) return;
-
-            const nearbyIssues = issues.filter(otherIssue => {
-                if (processed.has(otherIssue.id)) return false;
-                
-                const distance = getDistance(
-                    issue.position[0], issue.position[1],
-                    otherIssue.position[0], otherIssue.position[1]
-                );
-                
-                return distance <= clusterRadius;
-            });
-
-            if (nearbyIssues.length > 0) {
-                nearbyIssues.forEach(nearbyIssue => processed.add(nearbyIssue.id));
-
-                const avgLat = nearbyIssues.reduce((sum, i) => sum + i.position[0], 0) / nearbyIssues.length;
-                const avgLng = nearbyIssues.reduce((sum, i) => sum + i.position[1], 0) / nearbyIssues.length;
-                const avgSeverity = nearbyIssues.reduce((sum, i) => sum + i.severity, 0) / nearbyIssues.length;
-
-                clusters.push({
-                    id: `cluster-${clusters.length}`,
-                    position: [avgLat, avgLng],
-                    issues: nearbyIssues,
-                    count: nearbyIssues.length,
-                    averageSeverity: avgSeverity
-                });
-            }
-        });
-
-        return clusters;
-    };
-
-    // Update clusters when issues change
-    useEffect(() => {
-        if (issues.length > 0) {
-            const newClusters = clusterIssues(issues);
-            setClusters(newClusters);
-        }
-    }, [issues]);
 
     const getComments = async (problemId: string) => {
         try {
@@ -297,7 +238,7 @@ const MapPage: React.FC = () => {
             return;
         }
 
-        toast(
+        const confirmToast = toast(
             (t) => (
                 <div>
                     <p>Are you sure you want to delete this issue?</p>
@@ -448,51 +389,12 @@ const MapPage: React.FC = () => {
         return 0;
     });
 
-    // Helper functions for heatmap visualization
-    const getCircleRadius = (count: number) => {
-        return Math.min(50 + (count * 20), 200); // Base radius 50, increases with count
-    };
-
-    const getCircleColor = (count: number, severity: number) => {
-        const intensity = Math.min(count / 10, 1); // Normalize intensity
-        const severityFactor = severity / 5; // Normalize severity (1-5 scale)
-        
-        // Red color with varying opacity based on count and severity
-        const opacity = Math.max(0.3, intensity * severityFactor);
-        return `rgba(220, 38, 38, ${opacity})`;
-    };
-
-    const getCircleWeight = (count: number) => {
-        return Math.min(2 + count, 8); // Border weight increases with count
-    };
-
     return (
         <div className="min-h-screen bg-[#f9f9f9] p-4 relative">
             <h1 className="text-3xl font-bold text-center font-serif mb-6">Civic Issue Map</h1>
 
             {position ? (
                 <>
-                    {/* Heatmap Toggle Control */}
-                    <div className="flex justify-center mb-4">
-                        <div className="bg-white rounded-lg shadow-md p-3 flex items-center space-x-4">
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={showHeatmap}
-                                    onChange={(e) => setShowHeatmap(e.target.checked)}
-                                    className="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500"
-                                />
-                                <span className="text-sm font-medium text-gray-700">Show Issue Heatmap</span>
-                            </label>
-                            <div className="flex items-center space-x-2 text-xs text-gray-500">
-                                <div className="w-3 h-3 bg-red-500 rounded-full opacity-30"></div>
-                                <span>Low Density</span>
-                                <div className="w-3 h-3 bg-red-500 rounded-full opacity-70"></div>
-                                <span>High Density</span>
-                            </div>
-                        </div>
-                    </div>
-
                     <MapContainer
                         center={position}
                         zoom={13}
@@ -507,44 +409,7 @@ const MapPage: React.FC = () => {
                         <Marker position={position} icon={liveLocationIcon}>
                             <Popup>You are here</Popup>
                         </Marker>
-
-                        {/* Heatmap Circles */}
-                        {showHeatmap && clusters.map((cluster) => (
-                            <Circle
-                                key={cluster.id}
-                                center={cluster.position}
-                                radius={getCircleRadius(cluster.count)}
-                                pathOptions={{
-                                    color: '#dc2626',
-                                    fillColor: getCircleColor(cluster.count, cluster.averageSeverity),
-                                    fillOpacity: 0.6,
-                                    weight: getCircleWeight(cluster.count),
-                                }}
-                                eventHandlers={{
-                                    click: () => setSelectedCluster(cluster),
-                                }}
-                            >
-                                <Popup>
-                                    <div className="text-center">
-                                        <h3 className="font-bold text-lg text-red-600 mb-2">
-                                            Issue Cluster ({cluster.count} issues)
-                                        </h3>
-                                        <p className="text-sm text-gray-600 mb-2">
-                                            Average Severity: {cluster.averageSeverity.toFixed(1)}/5
-                                        </p>
-                                        <button
-                                            onClick={() => setSelectedCluster(cluster)}
-                                            className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
-                                        >
-                                            View All Issues
-                                        </button>
-                                    </div>
-                                </Popup>
-                            </Circle>
-                        ))}
-
-                        {/* Individual Issue Markers (only show when heatmap is off or for single issues) */}
-                        {(!showHeatmap || clusters.length === 0) && issues.map((issue) => (
+                        {issues.map((issue) => (
                             <Marker key={issue.id} position={issue.position} icon={issueIcon}>
                                 <Popup>
                                     <div className="text-lg">
@@ -800,96 +665,6 @@ const MapPage: React.FC = () => {
                                 <div>No comments yet.</div>
                             )}
 
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Cluster Details Modal */}
-            {selectedCluster && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
-                    <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl h-[80%] overflow-y-auto">
-                        <div className="flex justify-between items-center mb-4">
-                            <div>
-                                <h2 className="text-2xl font-bold text-red-600">
-                                    Issue Cluster - {selectedCluster.count} Issues
-                                </h2>
-                                <p className="text-gray-600">
-                                    Average Severity: {selectedCluster.averageSeverity.toFixed(1)}/5
-                                </p>
-                            </div>
-                            <button
-                                onClick={() => setSelectedCluster(null)}
-                                className="text-2xl text-gray-600 hover:text-gray-800"
-                            >
-                                ×
-                            </button>
-                        </div>
-                        
-                        <div className="grid gap-4">
-                            {selectedCluster.issues.map((issue, index) => (
-                                <div key={issue.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <h3 className="font-semibold text-lg">Issue #{index + 1}</h3>
-                                        <span className="px-2 py-1 bg-red-100 text-red-800 rounded text-sm">
-                                            Severity: {issue.severity}/5
-                                        </span>
-                                    </div>
-                                    
-                                    <p className="text-gray-700 mb-2">
-                                        <span className="font-medium">Description:</span> {issue.description}
-                                    </p>
-                                    
-                                    {issue.address && (
-                                        <p className="text-gray-600 mb-2">
-                                            <span className="font-medium">Address:</span> {issue.address}
-                                        </p>
-                                    )}
-                                    
-                                    <div className="flex justify-between items-center text-sm text-gray-500">
-                                        <span>Votes: {issue.voteCount || 0}</span>
-                                        <span>Rating: {issue.averageRating || 'N/A'}</span>
-                                    </div>
-                                    
-                                    {issue.media && issue.media.length > 0 && (
-                                        <div className="mt-3 grid grid-cols-4 gap-2">
-                                            {issue.media.slice(0, 4).map((media, idx) => (
-                                                <img 
-                                                    key={idx} 
-                                                    src={`${API.replace('/api/v1/users','')}${media}`} 
-                                                    alt="Issue evidence" 
-                                                    className="w-full h-20 object-cover rounded"
-                                                />
-                                            ))}
-                                        </div>
-                                    )}
-                                    
-                                    <div className="mt-3 flex space-x-2">
-                                        <button
-                                            onClick={() => {
-                                                setSelectedIssue(issue);
-                                                setSelectedCluster(null);
-                                            }}
-                                            className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
-                                        >
-                                            View Details
-                                        </button>
-                                        
-                                        {issue.createdBy !== localStorage.getItem("id") && (
-                                            <button
-                                                onClick={() => {
-                                                    setSelectedCluster(null);
-                                                    // Focus on this issue on the map
-                                                    setSelectedIssue(issue);
-                                                }}
-                                                className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
-                                            >
-                                                Rate Issue
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
                         </div>
                     </div>
                 </div>
