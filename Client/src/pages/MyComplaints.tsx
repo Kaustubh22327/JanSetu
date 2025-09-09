@@ -14,15 +14,23 @@ interface Complaint {
   createdAt: string;
   voteCount: number;
   averageRating: number;
+  timeline?: { type: string; message: string; at?: string }[];
+  slaDueAt?: string | null;
 }
 
 const MyComplaints: React.FC = () => {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [now, setNow] = useState<number>(Date.now());
 
   useEffect(() => {
     fetchComplaints();
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(id);
   }, []);
 
   const fetchComplaints = async () => {
@@ -132,6 +140,16 @@ const MyComplaints: React.FC = () => {
     });
   };
 
+  const formatDuration = (ms: number) => {
+    const abs = Math.abs(ms);
+    const minutes = Math.floor(abs / 60000);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    if (days > 0) return `${days}d ${hours % 24}h`;
+    if (hours > 0) return `${hours}h ${minutes % 60}m`;
+    return `${Math.max(1, minutes)}m`;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-white to-[#f5f4ea] flex items-center justify-center">
@@ -180,6 +198,25 @@ const MyComplaints: React.FC = () => {
                         {complaint.status.replace('_', ' ').toUpperCase()}
                       </span>
                     </div>
+
+                    {Array.isArray(complaint.timeline) && complaint.timeline.length > 0 && (
+                      <div className="mt-4">
+                        <h4 className="text-sm font-semibold text-gray-700 mb-2">Timeline</h4>
+                        <ol className="relative border-s border-gray-200">
+                          {complaint.timeline.map((evt, idx) => (
+                            <li key={idx} className="mb-4 ms-4">
+                              <div className="absolute w-3 h-3 bg-gray-200 rounded-full mt-1.5 -start-1.5 border border-white"></div>
+                              <time className="mb-1 text-xs font-normal leading-none text-gray-400">
+                                {evt.at ? formatDate(evt.at) : ''}
+                              </time>
+                              <p className="text-sm text-gray-600">
+                                <span className="font-medium capitalize">{evt.type}</span>: {evt.message}
+                              </p>
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+                    )}
                     
                     <p className="text-gray-600 mb-4">{complaint.description}</p>
                     
@@ -200,6 +237,17 @@ const MyComplaints: React.FC = () => {
                         <span className="font-medium">Reported:</span>
                         {formatDate(complaint.createdAt)}
                       </span>
+                      {complaint.slaDueAt && (
+                        <span className="flex items-center gap-1">
+                          <span className="font-medium">SLA:</span>
+                          {(() => {
+                            const due = new Date(complaint.slaDueAt).getTime();
+                            const delta = due - now;
+                            const label = delta >= 0 ? 'due in' : 'overdue by';
+                            return `${label} ${formatDuration(delta)}`;
+                          })()}
+                        </span>
+                      )}
                     </div>
                   </div>
                   

@@ -63,6 +63,10 @@ const AdminDashboard: React.FC = () => {
     page: 1,
     limit: 10
   });
+  const [assigningForId, setAssigningForId] = useState<string | null>(null);
+  const [officials, setOfficials] = useState<Array<{_id:string;name:string;email:string;department:string;assignedCount:number;completedCount:number}>>([]);
+  const [loadingOfficials, setLoadingOfficials] = useState(false);
+  const [selectedOfficial, setSelectedOfficial] = useState<string>('');
 
   useEffect(() => {
     checkAuth();
@@ -128,6 +132,44 @@ const AdminDashboard: React.FC = () => {
     } catch (error: any) {
       console.error('Error fetching complaints:', error);
       toast.error('Failed to fetch complaints');
+    }
+  };
+
+  const openAssignModal = async (complaintId: string) => {
+    try {
+      setAssigningForId(complaintId);
+      setSelectedOfficial('');
+      setLoadingOfficials(true);
+      const adminToken = localStorage.getItem('adminToken');
+      const res = await axios.get(`${API.replace('/users', '/admin')}/officials`, {
+        headers: { Authorization: `Bearer ${adminToken}` }
+      });
+      if (res.data.success) {
+        setOfficials(res.data.officials);
+      }
+    } catch (e) {
+      toast.error('Failed to load officials');
+    } finally {
+      setLoadingOfficials(false);
+    }
+  };
+
+  const assignToOfficial = async () => {
+    if (!assigningForId || !selectedOfficial) return;
+    try {
+      const adminToken = localStorage.getItem('adminToken');
+      const res = await axios.post(
+        `${API.replace('/users', '/admin')}/complaints/${assigningForId}/assign`,
+        { officialId: selectedOfficial },
+        { headers: { Authorization: `Bearer ${adminToken}` } }
+      );
+      if (res.data.success) {
+        toast.success('Assigned successfully');
+        setAssigningForId(null);
+        fetchComplaints();
+      }
+    } catch (e:any) {
+      toast.error(e.response?.data?.message || 'Failed to assign');
     }
   };
 
@@ -410,6 +452,13 @@ const AdminDashboard: React.FC = () => {
                           <CheckCircle size={16} />
                         </button>
                         <button
+                          onClick={() => openAssignModal(complaint._id)}
+                          className="text-purple-600 hover:text-purple-900"
+                          title="Assign to Official"
+                        >
+                          <MapPin size={16} />
+                        </button>
+                        <button
                           onClick={() => handleDeleteComplaint(complaint._id)}
                           className="text-red-600 hover:text-red-900"
                           title="Delete"
@@ -497,6 +546,43 @@ const AdminDashboard: React.FC = () => {
                   Mark Resolved
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Assign Modal */}
+      {assigningForId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg w-full max-w-lg">
+            <div className="p-6 border-b flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Assign to Official</h3>
+              <button onClick={() => setAssigningForId(null)}>×</button>
+            </div>
+            <div className="p-6 space-y-4">
+              {loadingOfficials ? (
+                <p>Loading officials...</p>
+              ) : (
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-gray-700">Select Official</label>
+                  <select
+                    value={selectedOfficial}
+                    onChange={(e)=>setSelectedOfficial(e.target.value)}
+                    className="w-full border rounded-md px-3 py-2"
+                  >
+                    <option value="">Choose...</option>
+                    {officials.map(o => (
+                      <option key={o._id} value={o._id}>
+                        {o.name} — {o.department} ({o.assignedCount} assigned)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+            <div className="p-6 border-t flex justify-end gap-2">
+              <button onClick={()=>setAssigningForId(null)} className="px-4 py-2 border rounded">Cancel</button>
+              <button onClick={assignToOfficial} disabled={!selectedOfficial} className="px-4 py-2 bg-purple-600 text-white rounded disabled:opacity-50">Assign</button>
             </div>
           </div>
         </div>
