@@ -4,17 +4,54 @@ import User from "../models/userModel.js";
 import Official from "../models/officialModel.js";
 import Comment from "../models/commentModel.js";
 import mongoose from "mongoose";
+import fetch from "node-fetch";
+import path from "path";
+import fs from "fs";
 
 export const createProblem = async (req, res) => {
     try {
-        const { title, description, category, coordinates, rating } = req.body;
+        const { title, description, category, coordinates, rating, priority } = req.body;
         const userId = req.params.userId;
 
-        if (rating < 1 || rating > 5) {
+        const ratingNum = Number(rating);
+        if (Number.isNaN(ratingNum) || ratingNum < 1 || ratingNum > 5) {
             return res.status(400).json({ success: false, message: "Rating must be between 1 and 5" })
         }
 
-        const voteCount = rating >= 3 ? 1 : 0;
+        const voteCount = ratingNum >= 3 ? 1 : 0;
+
+        let coordsArray = coordinates;
+        if (typeof coordsArray === 'string') {
+            try {
+                coordsArray = JSON.parse(coordsArray);
+            } catch (_) {
+                return res.status(400).json({ success: false, message: 'Invalid coordinates format' });
+            }
+        }
+        if (!Array.isArray(coordsArray) || coordsArray.length !== 2) {
+            return res.status(400).json({ success: false, message: 'Coordinates must be [lng, lat]' });
+        }
+        coordsArray = [Number(coordsArray[0]), Number(coordsArray[1])];
+        if (coordsArray.some((n) => Number.isNaN(n))) {
+            return res.status(400).json({ success: false, message: 'Coordinates must be numbers' });
+        }
+
+        // Reverse geocoding (optional best-effort)
+        let humanAddress = '';
+        try {
+            if (Array.isArray(coordsArray) && coordsArray.length === 2) {
+                const [lng, lat] = coordsArray;
+                const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`;
+                const resp = await fetch(url, { headers: { 'User-Agent': 'Janhit/1.0' } });
+                const data = await resp.json();
+                humanAddress = data?.display_name || '';
+            }
+        } catch (_) {
+            // ignore reverse geocoding failures
+        }
+
+        // Collect uploaded media file paths (if any)
+        const mediaPaths = (req.files || []).map((f) => `/uploads/${path.basename(f.path)}`);
 
         const newProblem = await ProblemReport.create({
             title,
@@ -22,17 +59,21 @@ export const createProblem = async (req, res) => {
             category,
             location: {
                 type: "Point",
-                coordinates: coordinates,
+                coordinates: coordsArray,
             },
             createdBy: userId,
             voteCount,
-            averageRating: rating
+            averageRating: ratingNum,
+            address: humanAddress,
+            priority: priority || 'medium',
+            timeline: [{ type: 'created', message: 'Problem reported' }],
+            media: mediaPaths
         })
 
         await Vote.create({
             user: userId,
             problem: newProblem._id,
-            rating
+            rating: ratingNum
         })
 
         res.status(201).json({
@@ -82,6 +123,7 @@ export const rateProblem = async (req, res) => {
         if (rating >= 3) {
             await ProblemReport.findByIdAndUpdate(problemId, {
                 $inc: { voteCount: 1 },
+                $push: { timeline: { type: 'vote', message: `Vote received: ${rating} stars`, at: new Date() } }
             });
         }
 
@@ -135,6 +177,7 @@ export const assignProblem = async (req, res) => {
 
         problem.assignedTo = official._id;
         problem.status = "assigned";
+        problem.timeline.push({ type: 'assigned', message: `Assigned to ${official.name}` });
         await problem.save();
 
         official.assignedProblems.push(problemId);
@@ -174,6 +217,13 @@ export const deleteProblem = async (req, res) => {
             });
         }
 
+        const toDelete = await ProblemReport.findById(problemId);
+        if (toDelete?.media?.length) {
+            for (const m of toDelete.media) {
+                const filePath = path.resolve(process.cwd(), m.replace(/^\//, ''));
+                fs.unlink(filePath, () => {});
+            }
+        }
         await ProblemReport.findByIdAndDelete(problemId);
 
         await Vote.deleteMany({ problem: problemId });
@@ -189,8 +239,24 @@ export const deleteProblem = async (req, res) => {
 
 export const getAllProblems = async (req, res) => {
     try {
-        
-        const problems = await ProblemReport.find().lean();
+        const { q, lat, lng, radiusKm } = req.query;
+        const query = {};
+
+        if (q) {
+            Object.assign(query, { $text: { $search: q } });
+        }
+
+        if (lat && lng && radiusKm) {
+            Object.assign(query, {
+                location: {
+                    $geoWithin: {
+                        $centerSphere: [[Number(lng), Number(lat)], Number(radiusKm) / 6371]
+                    }
+                }
+            });
+        }
+
+        const problems = await ProblemReport.find(query).lean();
 
         
         const formattedProblems = problems.map((problem) => ({
@@ -214,7 +280,12 @@ export const getAllProblems = async (req, res) => {
 
 export const getOfficialProblems = async (req, res) => {
     try {
-        const officialId = req.params;
+        // Prefer authenticated official id; fallback to param :officialId
+        const paramId = req.params.officialId;
+        const officialId = req.user?._id || paramId;
+        if (!officialId) {
+            return res.status(400).json({ success: false, message: "Official ID not provided" });
+        }
 
         const problems = await ProblemReport.find({ assignedTo: officialId })
 
@@ -229,6 +300,39 @@ export const getOfficialProblems = async (req, res) => {
         res.status(500).json({ success: false, message: "Server Error" });
     }
 };
+
+// Allow an assigned official to update problem status
+export const updateProblemStatusByOfficial = async (req, res) => {
+    try {
+        const official = req.user;
+        const { problemId } = req.params;
+        const { status, note } = req.body;
+
+        const allowedStatuses = ['under_review', 'assigned', 'resolved'];
+        if (!allowedStatuses.includes(status)) {
+            return res.status(400).json({ success: false, message: 'Invalid status' });
+        }
+
+        const problem = await ProblemReport.findById(problemId);
+        if (!problem) {
+            return res.status(404).json({ success: false, message: 'Problem not found' });
+        }
+
+        // Ensure official is assigned to this problem
+        if (!official || String(problem.assignedTo) !== String(official._id)) {
+            return res.status(403).json({ success: false, message: 'Not authorized to update this problem' });
+        }
+
+        problem.status = status;
+        problem.timeline.push({ type: 'status', message: `Status changed to ${status}${note ? ` — ${note}` : ''}` });
+        await problem.save();
+
+        return res.status(200).json({ success: true, message: 'Status updated', problem });
+    } catch (error) {
+        console.error('official status update error', error);
+        return res.status(500).json({ success: false, message: 'Server Error' });
+    }
+}
 
 export const getUserComplaints = async (req, res) => {
     try {
@@ -259,3 +363,46 @@ export const getUserComplaints = async (req, res) => {
         res.status(500).json({ success: false, message: "Server Error" });
     }
 };
+
+// Find near-duplicate problems by text and distance
+export const findSimilarProblems = async (req, res) => {
+    try {
+        const { lat, lng, text } = req.query;
+        if (!lat || !lng || !text) {
+            return res.status(400).json({ success: false, message: 'lat,lng,text are required' });
+        }
+
+        const center = [Number(lng), Number(lat)];
+        const near = await ProblemReport.find({
+            location: {
+                $near: {
+                    $geometry: { type: 'Point', coordinates: center },
+                    $maxDistance: 500
+                }
+            }
+        })
+            .limit(20)
+            .lean();
+
+        const norm = (s) => String(s || '').toLowerCase();
+        const terms = new Set(norm(text).split(/\W+/).filter(Boolean));
+        const score = (p) => {
+            const hay = norm(p.title + ' ' + p.description).split(/\W+/);
+            let matches = 0;
+            for (const w of hay) if (terms.has(w)) matches++;
+            return matches / Math.max(1, hay.length);
+        };
+
+        const ranked = near
+            .map((p) => ({ p, s: score(p) }))
+            .filter((x) => x.s > 0)
+            .sort((a, b) => b.s - a.s)
+            .slice(0, 5)
+            .map((x) => x.p);
+
+        res.json({ success: true, similar: ranked });
+    } catch (e) {
+        console.error('similar error', e);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+}

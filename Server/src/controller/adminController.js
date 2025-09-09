@@ -332,3 +332,50 @@ export const assignComplaintToOfficial = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 }; 
+
+// List officials for assignment with simple filters
+export const getOfficials = async (req, res) => {
+  try {
+    const { q, department, page = 1, limit = 20 } = req.query;
+    const filter = {};
+    if (department) filter.department = department;
+    if (q) {
+      filter.$or = [
+        { name: { $regex: q, $options: "i" } },
+        { email: { $regex: q, $options: "i" } },
+        { department: { $regex: q, $options: "i" } }
+      ];
+    }
+
+    const skip = (Number(page) - 1) * Number(limit);
+    const officials = await Official.find(filter)
+      .select("name email department assignedProblems completedProblems")
+      .skip(skip)
+      .limit(Number(limit))
+      .lean();
+
+    const total = await Official.countDocuments(filter);
+    const formatted = officials.map(o => ({
+      _id: o._id.toString(),
+      name: o.name,
+      email: o.email,
+      department: o.department,
+      assignedCount: Array.isArray(o.assignedProblems) ? o.assignedProblems.length : 0,
+      completedCount: Array.isArray(o.completedProblems) ? o.completedProblems.length : 0,
+    }));
+
+    res.status(200).json({
+      success: true,
+      officials: formatted,
+      pagination: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / Number(limit))
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching officials:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
