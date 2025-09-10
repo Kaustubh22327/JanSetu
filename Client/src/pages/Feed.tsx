@@ -6,17 +6,14 @@ import {
   Share2, 
   MapPin, 
   Search, 
-  Filter,
   Plus,
   X,
   Camera,
   Send,
-  Trash2,
   MoreHorizontal,
   Bookmark,
   Bell,
-  Eye,
-  AtSign
+  Eye
 } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';

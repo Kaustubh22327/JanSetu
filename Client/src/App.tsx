@@ -12,6 +12,7 @@ import Officials from './pages/Officials';
 import MyTeam from './pages/MyTeam';
 import MyComplaints from './pages/MyComplaints';
 import Feed from './pages/Feed';
+import DisasterFundraising from './pages/DisasterFundraising';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import ProtectedRoute from './ProtectedRoute';
@@ -113,6 +114,15 @@ function App() {
           element={
             <MainLayout>
               <Feed />
+            </MainLayout>
+          }
+        />
+
+        <Route
+          path="/disaster-fundraising"
+          element={
+            <MainLayout>
+              <DisasterFundraising />
             </MainLayout>
           }
         />

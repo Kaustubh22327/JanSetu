@@ -1,21 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { FaHome, FaListAlt, FaLock } from "react-icons/fa";
+import { FaHome, FaListAlt } from "react-icons/fa";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { API } from '../ApiUri';
 import toast from 'react-hot-toast';
 
-interface UserProfile {
-  _id: string;
-  name: string;
-  email: string;
-  phone: string;
-  location: {
-    coordinates: [number, number];
-  };
-  address?: string;
-  createdAt: string;
-}
 
 const DashboardUser: React.FC = () => {
   const [activeSection, setActiveSection] = useState<"account" | "issues">("account");

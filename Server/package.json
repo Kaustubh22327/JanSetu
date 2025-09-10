@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
-    "start": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
+    "start": "node -r dotenv/config --experimental-json-modules src/index.js",
     "seed": "node -r dotenv/config --experimental-json-modules seed-cli.js seed",
     "seed:clear": "node -r dotenv/config --experimental-json-modules seed-cli.js clear",
     "seed:help": "node -r dotenv/config --experimental-json-modules seed-cli.js help"

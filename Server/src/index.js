@@ -23,9 +23,10 @@ connectDB()
     console.log("⚠️  Auto-seeding failed, but server will continue:", error.message);
   }
 
-  app.listen(8000, ()=>{
-    console.log(`🚀 Server is running on port 8000`);
-    console.log(`📱 Feed available at: http://localhost:5173/feed`);
+  const PORT = process.env.PORT || 8000;
+  app.listen(PORT, ()=>{
+    console.log(`🚀 Server is running on port ${PORT}`);
+    console.log(`📱 Feed available at: ${process.env.FRONTEND_URL || 'http://localhost:5173'}/feed`);
   })
 })
 .catch((err) => {

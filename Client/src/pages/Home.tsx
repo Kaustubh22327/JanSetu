@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import HeroSection from '../components/HeroSection';
 import HowItWorksSection from '../components/HowItWorksSection';
-import FeaturedIssues from '../components/FeaturedIssues';
+// import FeaturedIssues from '../components/FeaturedIssues';
 import FaqSection from '../components/FaqSection';
 
 const CtaBanner: React.FC = () => (

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ChevronDown, Menu, X, User, Settings, LogOut, Bell, Sun, Moon } from 'lucide-react';
+import { ChevronDown, Menu, X, User, Settings, LogOut, Sun, Moon } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/Logo.jpeg'
 import toast from 'react-hot-toast';
@@ -10,7 +10,6 @@ const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState('');
   const navigate = useNavigate();
   const { isDarkMode, toggleTheme } = useTheme();
   const { lang, setLang, t } = useI18n();
@@ -63,6 +62,12 @@ const Navbar: React.FC = () => {
                 className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors"
               >
                 Community Feed
+              </Link>
+              <Link 
+                to="/disaster-fundraising" 
+                className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors"
+              >
+                🤝 Disaster Relief
               </Link>
               {isLoggedIn && (
                 <Link 
@@ -205,6 +210,13 @@ const Navbar: React.FC = () => {
                 className="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
               >
                 Community Feed
+              </Link>
+              <Link
+                to="/disaster-fundraising"
+                onClick={closeMenu}
+                className="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
+              >
+                🤝 Disaster Relief
               </Link>
               {isLoggedIn && (
                 <Link

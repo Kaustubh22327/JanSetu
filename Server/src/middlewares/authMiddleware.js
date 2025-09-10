@@ -56,3 +56,6 @@ export const verifyJWT = async (req, res, next) => {
     return res.status(401).json({ success: false, message: "Unauthorized or invalid token" });
   }
 };
+
+// Export as authMiddleware for backward compatibility
+export const authMiddleware = verifyJWT;
