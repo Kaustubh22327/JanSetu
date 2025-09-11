@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Camera, MapPin, Bell, ChevronRight, ClipboardCheck, Users, Heart, Shield } from 'lucide-react';
+import { Camera, ChevronRight, ClipboardCheck, Users, Heart, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const features = [
