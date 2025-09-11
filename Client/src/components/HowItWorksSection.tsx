@@ -1,29 +1,36 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Camera, MapPin, Bell, ChevronRight, ClipboardCheck } from 'lucide-react';
+import { Camera, MapPin, Bell, ChevronRight, ClipboardCheck, Users, Heart, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const features = [
     {
         icon: Camera,
-        title: "Report Issues",
-        description: "Take photos, mark location, and describe civic problems in your area. Quick and easy reporting process.",
+        title: "Report & Track Issues",
+        description: "Take photos, mark location, and describe civic problems. Monitor resolution progress on interactive maps with real-time updates.",
         path: "/map",
-        code: "clockworks/report-issue"
+        code: "jansetu/civic-reporting"
     },
     {
-        icon: MapPin,
-        title: "Track Progress",
-        description: "Monitor issue status on an interactive map. See nearby problems and their resolution progress in real-time.",
-        path: "/map",
-        code: "compass/issue-tracker"
+        icon: Users,
+        title: "Connect & Engage",
+        description: "Join community discussions, share local stories, and discover neighborhood events through our social feed platform.",
+        path: "/feed",
+        code: "jansetu/community-feed"
     },
     {
-        icon: Bell,
-        title: "Get Notifications",
-        description: "Receive updates when your reported issues are acknowledged, assigned, and resolved. Stay informed at every step.",
-        path: "/notifications",
-        code: "apify/notification-system"
+        icon: Heart,
+        title: "Support Relief Efforts",
+        description: "Contribute to verified disaster relief campaigns and track the impact of your donations in real-time.",
+        path: "/disaster-fundraising",
+        code: "jansetu/disaster-relief"
+    },
+    {
+        icon: Shield,
+        title: "Manage & Resolve",
+        description: "Officials can efficiently assign, track, and resolve issues while citizens receive notifications at every step.",
+        path: "/officialsDashboard",
+        code: "jansetu/official-portal"
     }
 ];
 
@@ -31,7 +38,38 @@ const HowItWorksSection: React.FC = () => {
     return (
         <section className="py-20 bg-gray-50">
             <div className="max-w-7xl mx-auto px-4">
-                <div className="grid gap-8 md:grid-cols-3">
+                {/* Section Header */}
+                <div className="text-center mb-16">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6 }}
+                        className="inline-block px-4 py-1.5 mb-6 rounded-full bg-blue-50 text-blue-700 text-sm font-medium"
+                    >
+                        How It Works
+                    </motion.div>
+                    <motion.h2
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                        className="text-4xl md:text-5xl font-bold text-gray-900 mb-6"
+                    >
+                        Four Powerful Ways to Engage
+                    </motion.h2>
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                        className="text-gray-600 text-lg max-w-3xl mx-auto"
+                    >
+                        Whether you're a citizen, official, or community leader, JanSetu provides the tools you need to create positive change in your community.
+                    </motion.p>
+                </div>
+
+                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
                     {features.map((feature, index) => (
                         <motion.div
                             key={index}

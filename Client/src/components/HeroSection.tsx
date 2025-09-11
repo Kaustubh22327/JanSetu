@@ -3,61 +3,37 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
     MapPin, 
-    Trash2, 
     Droplet, 
-    Lightbulb, 
-    Trees, 
-    Construction
+    Heart
 } from 'lucide-react';
 
-const categories = [
-    {
-        Icon: MapPin,
-        title: "Road Issues",
-        description: "Report potholes, broken roads, and traffic signals",
-        path: "/map?category=road",
-        code: "jansetu/road-issues",
-        color: "blue"
-    },
-    {
-        Icon: Trash2,
-        title: "Garbage Collection",
-        description: "Track and report waste management issues",
-        path: "/map?category=garbage",
-        code: "jansetu/garbage-collection",
-        color: "green"
-    },
+const modules = [
     {
         Icon: Droplet,
-        title: "Water Supply",
-        description: "Report water-related problems in your area",
-        path: "/map?category=water",
-        code: "jansetu/water-supply",
-        color: "cyan"
+        title: "Community Social Feed",
+        description: "Connect with neighbors, share local stories, discover events, and build stronger community bonds",
+        path: "/feed",
+        code: "jansetu/community-feed",
+        color: "green",
+        stats: "25K+ Posts Shared"
     },
     {
-        Icon: Lightbulb,
-        title: "Street Lights",
-        description: "Report non-functional or damaged street lights",
-        path: "/map?category=lights",
-        code: "jansetu/street-lights",
-        color: "yellow"
+        Icon: Heart,
+        title: "Disaster Relief Fundraising",
+        description: "Support disaster relief efforts through secure crowdfunding campaigns with transparent fund tracking",
+        path: "/disaster-fundraising",
+        code: "jansetu/disaster-relief",
+        color: "red",
+        stats: "₹2.5Cr+ Raised"
     },
     {
-        Icon: Trees,
-        title: "Parks & Gardens",
-        description: "Report issues in public parks and green spaces",
-        path: "/map?category=parks",
-        code: "jansetu/parks-gardens",
-        color: "emerald"
-    },
-    {
-        Icon: Construction,
-        title: "Infrastructure",
-        description: "Report issues with public infrastructure",
-        path: "/map?category=infrastructure",
-        code: "jansetu/infrastructure",
-        color: "orange"
+        Icon: MapPin,
+        title: "Civic Issue Reporting",
+        description: "Report and track civic problems with interactive maps, real-time updates, and direct communication with authorities",
+        path: "/map",
+        code: "jansetu/civic-reporting",
+        color: "blue",
+        stats: "10K+ Issues Resolved"
     }
 ];
 
@@ -79,53 +55,67 @@ const HeroSection: React.FC = () => {
                         transition={{ duration: 0.6 }}
                         className="text-4xl sm:text-6xl lg:text-7xl font-bold text-[#303030] mb-6 tracking-tight"
                     >
-                        Your one-stop platform for
+                        Complete Digital Platform for
                         <br />
-                        civic reporting
+                        <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            Smart Governance
+                        </span>
                     </motion.h1>
 
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.2 }}
-                        className="text-lg sm:text-xl text-[#666666] max-w-3xl mx-auto"
+                        className="text-lg sm:text-xl text-[#666666] max-w-4xl mx-auto"
                     >
-                        JanSetu is the largest ecosystem where citizens report, track, and resolve civic issues.
-                        Join thousands in making your city better.
+                        JanSetu is a comprehensive ecosystem connecting citizens, officials, and communities. 
+                        Report civic issues, engage in social feeds, support disaster relief, and build stronger communities together.
                     </motion.p>
                 </div>
 
-                {/* Category Cards */}
+                {/* Module Cards */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.4 }}
-                    className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto"
+                    className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto"
                 >
-                    {categories.map((category, index) => {
-                        const colors = getColorClasses(category.color);
+                    {modules.map((module, index) => {
+                        const colors = getColorClasses(module.color);
                         return (
                             <Link 
                                 key={index}
-                                to={category.path}
-                                className={`group bg-white rounded-xl border border-gray-200 ${colors.border} hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 p-6 flex flex-col`}
+                                to={module.path}
+                                className={`group bg-white rounded-2xl border-2 border-gray-200 ${colors.border} hover:shadow-[0_20px_50px_rgb(0,0,0,0.15)] transition-all duration-300 p-8 flex flex-col relative overflow-hidden`}
                             >
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className={`p-2 ${colors.bg} rounded-lg`}>
-                                        <category.Icon className={`w-6 h-6 ${colors.text}`} />
-                                    </div>
+                                {/* Background Pattern */}
+                                <div className="absolute top-0 right-0 w-24 h-24 opacity-5">
+                                    <div className={`w-full h-full ${colors.bg} rounded-full transform translate-x-6 -translate-y-6`}></div>
                                 </div>
-                                
-                                <h3 className="text-xl font-semibold text-[#303030] mb-2">
-                                    {category.title}
-                                </h3>
-                                
-                                <p className="text-[#666666] text-sm mb-4 flex-grow">
-                                    {category.description}
-                                </p>
 
-                                <div className="text-sm font-mono text-gray-400 pt-4 border-t border-gray-100">
-                                    {category.code}
+                                <div className="relative z-10">
+                                    <div className="flex items-start justify-between mb-6">
+                                        <div className={`p-3 ${colors.bg} rounded-xl`}>
+                                            <module.Icon className={`w-8 h-8 ${colors.text}`} />
+                                        </div>
+                                    </div>
+                                    
+                                    <h3 className="text-2xl font-bold text-[#303030] mb-3">
+                                        {module.title}
+                                    </h3>
+                                    
+                                    <p className="text-[#666666] text-base mb-6 flex-grow leading-relaxed">
+                                        {module.description}
+                                    </p>
+
+                                    {/* Stats */}
+                                    <div className={`inline-block px-3 py-1.5 ${colors.bg} ${colors.text} rounded-full text-sm font-semibold mb-4`}>
+                                        {module.stats}
+                                    </div>
+
+                                    <div className="text-sm font-mono text-gray-400 pt-4 border-t border-gray-100">
+                                        {module.code}
+                                    </div>
                                 </div>
                             </Link>
                         );

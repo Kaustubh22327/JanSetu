@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import HeroSection from '../components/HeroSection';
+import ModulesSection from '../components/ModulesSection';
 import HowItWorksSection from '../components/HowItWorksSection';
 // import FeaturedIssues from '../components/FeaturedIssues';
 import FaqSection from '../components/FaqSection';
@@ -25,25 +26,25 @@ const CtaBanner: React.FC = () => (
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="text-center md:text-left">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Ready to Make a Difference?
+              Ready to Transform Your Community?
             </h2>
             <p className="text-lg text-white/80 max-w-xl">
-              Join thousands of active citizens who are making their voices heard and their communities better.
+              Join thousands of citizens, officials, and organizations using JanSetu's comprehensive platform for civic engagement, community building, and disaster relief.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
-              to="/map"
+              to="/signup"
               className="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-900 rounded-xl hover:bg-gray-100 transition-colors font-semibold"
             >
-              Report an Issue
+              Get Started Free
               <ArrowRight className="w-5 h-5 ml-2" />
             </Link>
             <Link
-              to="/signup"
+              to="/feed"
               className="inline-flex items-center justify-center px-8 py-4 border-2 border-white text-white rounded-xl hover:bg-white/10 transition-colors font-semibold"
             >
-              Sign Up Now
+              Explore Platform
             </Link>
           </div>
         </div>
@@ -56,6 +57,7 @@ const Home: React.FC = () => {
   return (
     <>
       <HeroSection />
+      <ModulesSection />
       <HowItWorksSection />
       {/* <FeaturedIssues /> */}
       <FaqSection />
