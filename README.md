@@ -1,4 +1,4 @@
-# JanSetu - Citizen Problem Reporting System
+# JanSetu - Smart Governance Platform
 
 ## Setup Instructions
 
