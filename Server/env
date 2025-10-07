@@ -8,5 +8,8 @@ CLOUDINARY_CLOUD_NAME=your_actual_cloud_name_here
 CLOUDINARY_API_KEY=your_actual_api_key_here
 CLOUDINARY_API_SECRET=your_actual_api_secret_here
 
+# VWO Configuration
+VWO_SDK_KEY=a5d4d4c968a1a16a...
+VWO_ACCOUNT_ID=1150
 
- 
+

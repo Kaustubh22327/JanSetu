@@ -2,6 +2,7 @@ import dotenv from "dotenv"
 import app from './app.js'
 import connectDB from "./db/connectTomongoDb.js"
 import { autoSeedIfEmpty } from "./seeds/seedPosts.js"
+import vwoService from './services/vwoService.js'
 
 dotenv.config({
     path:'./env'
@@ -13,6 +14,14 @@ app.get('/', (req, res)=>{
 
 connectDB()
 .then(async ()=>{
+  // Initialize VWO SDK
+  try {
+    await vwoService.initialize();
+    console.log('🎯 VWO Feature Experimentation initialized');
+  } catch (error) {
+    console.log("⚠️  VWO initialization failed, but server will continue:", error.message);
+  }
+
   // Auto-seed flood posts if database is empty
   try {
     const seedResult = await autoSeedIfEmpty();

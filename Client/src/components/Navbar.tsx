@@ -5,6 +5,7 @@ import logo from '../assets/Logo.jpeg'
 import toast from 'react-hot-toast';
 import { useTheme } from '../context/ThemeContext';
 import { useI18n } from '../context/I18nContext';
+import { useButtonExperiment } from '../hooks/useButtonExperiment';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,6 +14,7 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const { isDarkMode, toggleTheme } = useTheme();
   const { lang, setLang, t } = useI18n();
+  const { experiment, loading, trackClick } = useButtonExperiment(localStorage.getItem("id") || undefined);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -110,9 +112,10 @@ const Navbar: React.FC = () => {
             {/* Report Issue Button */}
             <Link
               to="/map"
+              onClick={() => trackClick()}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-2"
             >
-              <span>{t('report_issue')}</span>
+              <span>{loading ? 'Loading...' : experiment.buttonText}</span>
               <span>→</span>
             </Link>
 
@@ -310,10 +313,13 @@ const Navbar: React.FC = () => {
             {/* Report Issue Button */}
             <Link
               to="/map"
-              onClick={closeMenu}
+              onClick={() => {
+                trackClick();
+                closeMenu();
+              }}
               className="block w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-md text-center font-medium transition-colors"
             >
-              {t('report_issue')} →
+              {loading ? 'Loading...' : experiment.buttonText} →
             </Link>
           </div>
         </div>
